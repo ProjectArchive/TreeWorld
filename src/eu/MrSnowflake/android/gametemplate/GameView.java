@@ -90,8 +90,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				for(TreeNode tn : root.getChildren())
 				{
 					tn.branch(3, branchLength, root.getLocation());
-					for(TreeNode tnc :tn.getChildren() )
-						tnc.branch(3, branchLength, tn.getLocation());
+				//	for(TreeNode tnc :tn.getChildren() )
+					//	tnc.branch(3, branchLength, tn.getLocation());
 				}
 				mLastTime = System.currentTimeMillis() + 100;
 				setState(GameState.RUNNING);
@@ -266,7 +266,6 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				Point absoluteRootLoc = Point.translate(root.getLocation(),dX,dY);
 				canvas.drawText("RootLocation =" + absoluteRootLoc, 10, 20, pm);
 				canvas.drawText("Origin Location =" + origin, 10, 30, pm);
-				canvas.drawLine(lastPoint.getX(),lastPoint.getY(), absoluteRootLoc.getX(), absoluteRootLoc.getY(),pm);
 				canvas.drawText("root->last mag=" + lastPoint.distanceTo(root.getLocation()), 10, 50, pm);
 			}
 		}
@@ -328,10 +327,12 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				for(TreeNode child : root.getChildren())
 				{
 					child.branch(3, branchLength, Point.translate(lastPoint, dXSinceReadjust, -dYSinceReadjust));
+				/*
 					for(TreeNode baby: child.getChildren())
 					{
 						baby.branch(3, branchLength, child.getLocation());
 					}
+					*/
 				}
 				//reset our accumulators
 				deltaX = (lastPoint.getX()-root.getLocation().getX());
