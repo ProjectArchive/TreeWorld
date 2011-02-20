@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GameTemplate</string>
+    
+    <string name="menu_start">Start</string>
+    <string name="menu_stop">Stop</string>
+    <string name="menu_pause">Pause</string>
+	<string name="menu_resume">Resume</string>
+</resources>
