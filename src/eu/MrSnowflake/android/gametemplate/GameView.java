@@ -26,6 +26,7 @@ import eu.MrSnowflake.android.gametemplate.GameTemplate.GameState;
 class GameView extends SurfaceView implements SurfaceHolder.Callback {
     class GameThread extends Thread {
     	private Point lastPoint;
+    	private Point origin;
     	TreeNode root;
         /*
          * State-tracking constants
@@ -88,6 +89,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 x = 10;
                 y = 10;
                 lastPoint = new Point(mCanvasWidth/2,mCanvasHeight);
+                origin = new Point(mCanvasWidth/2,mCanvasHeight);
                 branchLength = mCanvasHeight /4;
             	root = new TreeNode(null,new Point ((mCanvasWidth/2),mCanvasHeight*3/4));
             	root.branch(3, branchLength, lastPoint);
@@ -254,27 +256,29 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 
         private void doDraw(Canvas canvas) {
+        	if (root != null)
+        	{
+
+        	canvas.save();
         	canvas.translate(dX, dY);
         	canvas.drawARGB(255, 0, 0, 0);
         	if(lastPoint == null)
-        		lastPoint = new Point(canvas.getWidth()/2,canvas.getHeight());
-        	
-        	if(root == null)
         	{
-        		Paint pm = new Paint();
-        		pm.setColor(Color.WHITE);
-        		canvas.drawText("root is null", 20, 20, pm);
+        		lastPoint = new Point(canvas.getWidth()/2,canvas.getHeight());
+        		origin = lastPoint;
         	}
         	Paint pm = new Paint();
         	pm.setColor(Color.WHITE);
-        	canvas.drawText("Screen =" + "(" + canvas.getWidth() + " x " + canvas.getHeight() + ")" + " lastPoint =" + lastPoint, 10, 10, pm);
-        	if (root != null)
-        	{
-            	canvas.drawText("rootloc=" + root.getLocation() + "child=" + ("" +(root.getChildren() != null)), 10, 20, pm);
         		//canvas.drawLine(canvas.getWidth()/2, canvas.getHeight() -2, 0, 0, pm);
-        		drawTree(canvas,root,lastPoint,pm);
+        	drawTree(canvas,root,lastPoint,pm);
+            canvas.restore();        		
+        	canvas.drawLine(0, 0, 20, 20, pm);
+        	canvas.drawText("Screen =" + "(" + canvas.getWidth() + " x " + canvas.getHeight() + ")" + " lastPoint =" + lastPoint, 10, 10, pm);
+        	Point absoluteRootLoc = Point.translate(root.getLocation(),dX,dY);
+        	canvas.drawText("RootLocation =" + absoluteRootLoc, 10, 20, pm);
+        	canvas.drawText("Origin Location =" + origin, 10, 30, pm);
+        	canvas.drawLine(origin.getX(),origin.getY(), absoluteRootLoc.getX(), absoluteRootLoc.getY(),pm);
         	}
-        	canvas.translate(dX, dY);
         }
         public void drawTree(Canvas canvas,TreeNode current,Point lastStart, Paint pm)
         {
@@ -339,6 +343,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             	dXSinceReadjust =0;
             	dYSinceReadjust = 0;
             }
+            
         }
     }
 
