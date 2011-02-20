@@ -1,6 +1,5 @@
 package eu.MrSnowflake.android.gametemplate;
 
-import eu.MrSnowflake.android.gametemplate.GameTemplate.GameState;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +12,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import eu.MrSnowflake.android.gametemplate.GameTemplate.GameState;
 
 /**
  * View that draws, takes keystrokes, etc. for a simple LunarLander game.
@@ -94,6 +94,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             	for(TreeNode tn : root.getChildren())
             	{
             		tn.branch(3, branchLength, root.getLocation());
+            		for(TreeNode tnc :tn.getChildren() )
+            			tnc.branch(3, branchLength, tn.getLocation());
             	}
                 mLastTime = System.currentTimeMillis() + 100;
                 setState(GameState.RUNNING);
@@ -279,11 +281,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         	if(current.getLocation() == null)
         		return;
         	//draw from the last node to this node (in the case of root, draw offscreen to this node)
-        	
         	canvas.drawLine(lastStart.getX() , lastStart.getY(), current.getLocation().getX(), current.getLocation().getY(), pm); 
         	if(current.getChildren() == null)
         		return;
-
         	for(TreeNode child : current.getChildren()) //draw from this node to every child node, then do the same for them (recurse)
         	{
         		if (child == null || child.getLocation() == null)
@@ -323,14 +323,18 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             //root.translateChildren(dX, dY); // we could translate all of our children, but that is slow :(
             dXSinceReadjust += thisdX;
             dYSinceReadjust += thisdY;
-            //if we have reached the next node
-            if(Math.sqrt(Math.pow(dXSinceReadjust,2)+ Math.pow(dYSinceReadjust,2)) >= branchLength)
+            lastPoint.translate(thisdX, -thisdY);
+            
+            //we are near the end node
+            if(lastPoint.distanceTo(root.getLocation()) < 5)
             {
             	lastPoint = root.getLocation()	; // keep track of our last point for drawing
-            	lastPoint.translate(dXSinceReadjust,-dYSinceReadjust);
-            	root = root.getChildren()[1]; // branch on the tree,
+            	root = root.getChildren()[1]; // branch on the tree, This is hacked, just choosing the central node
+            	
             	for(TreeNode child : root.getChildren())
-            		child.branch(3, branchLength, lastPoint);
+            	{
+            		child.branch(3, branchLength, Point.translate(lastPoint, dXSinceReadjust, -dYSinceReadjust));
+            	}
             	//reset our accumulators
             	dXSinceReadjust =0;
             	dYSinceReadjust = 0;

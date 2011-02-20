@@ -36,4 +36,16 @@ public class Point {
 		this.x += dx;
 		this.y += dy;
 	}
+	
+	public static Point translate(Point p, float dx, float dy)
+	{
+		return new Point (p.getX() + dx, p.getY() + dy);
+	}
+	
+	public float distanceTo(Point p)
+	{
+		float dX = p.x - x;
+		float dY = p.y -y;
+		return (float)Math.sqrt(((dX*dX)+ (dY*dY)));
+	}
 }
