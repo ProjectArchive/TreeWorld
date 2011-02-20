@@ -262,17 +262,11 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         	canvas.save();
         	canvas.translate(dX, dY);
         	canvas.drawARGB(255, 0, 0, 0);
-        	if(lastPoint == null)
-        	{
-        		lastPoint = new Point(canvas.getWidth()/2,canvas.getHeight());
-        		origin = lastPoint;
-        	}
         	Paint pm = new Paint();
         	pm.setColor(Color.WHITE);
         		//canvas.drawLine(canvas.getWidth()/2, canvas.getHeight() -2, 0, 0, pm);
         	drawTree(canvas,root,lastPoint,pm);
-            canvas.restore();        		
-        	canvas.drawLine(0, 0, 20, 20, pm);
+            canvas.restore(); // back to relative to (0,0)
         	canvas.drawText("Screen =" + "(" + canvas.getWidth() + " x " + canvas.getHeight() + ")" + " lastPoint =" + lastPoint, 10, 10, pm);
         	Point absoluteRootLoc = Point.translate(root.getLocation(),dX,dY);
         	canvas.drawText("RootLocation =" + absoluteRootLoc, 10, 20, pm);
@@ -332,7 +326,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             //we are near the end node
             if(lastPoint.distanceTo(root.getLocation()) < 5)
             {
-            	lastPoint = root.getLocation()	; // keep track of our last point for drawing
+            	lastPoint = Point.translate(root.getLocation(),lastPoint.getX()-root.getLocation().getX(),lastPoint.getY()-root.getLocation().getY())	; // keep track of our last point for drawing
             	root = root.getChildren()[1]; // branch on the tree, This is hacked, just choosing the central node
             	
             	for(TreeNode child : root.getChildren())

@@ -55,24 +55,5 @@ public class TreeNode {
 		return base;
 	}
 	
-	public void translateChildren(float dx, float dy)
-	{
-		translateChildren(this,dx,dy);
-	}
-	private void translateChildren(TreeNode tn, float dx, float dy)
-	{
-		if (tn == null || tn.getLocation() == null)
-			return;
-		tn.location.setX(tn.location.getX() + dx);	
-		tn.location.setY(tn.location.getY() + dy);
-		if(tn.getChildren() != null)
-		{
-			for( TreeNode child : tn.getChildren())
-			{
-				if(child == null || child.getLocation() == null)
-					continue;
-				translateChildren(child,dx,dy);
-			}
-		}
-	}
+
 }
