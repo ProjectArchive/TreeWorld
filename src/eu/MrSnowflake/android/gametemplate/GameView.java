@@ -82,7 +82,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			synchronized (mSurfaceHolder) {
 				// Initialize game here!
 
-				lastPoint = new Point(mCanvasWidth/2,mCanvasHeight);
+				lastPoint = new Point(mCanvasWidth/2 +15,mCanvasHeight);
 				origin = new Point(mCanvasWidth/2,mCanvasHeight);
 				branchLength = mCanvasHeight /4;
 				root = new TreeNode(null,new Point ((mCanvasWidth/2),mCanvasHeight*3/4));
@@ -259,14 +259,14 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				pm.setColor(Color.WHITE);
 				//canvas.drawLine(canvas.getWidth()/2, canvas.getHeight() -2, 0, 0, pm);
 				drawTree(canvas,root,lastPoint,pm);
-				canvas.drawLine(lastPoint.getX(),lastPoint.getY(), root.getLocation().getX(), root.getLocation().getY(),pm);
+				//canvas.drawLine(lastPoint.getX(),lastPoint.getY(), root.getLocation().getX(), root.getLocation().getY(),pm);
 				
 				canvas.restore(); // back to relative to (0,0)
 				canvas.drawText("Screen =" + "(" + canvas.getWidth() + " x " + canvas.getHeight() + ")" + " lastPoint =" + lastPoint, 10, 10, pm);
 				Point absoluteRootLoc = Point.translate(root.getLocation(),dX,dY);
 				canvas.drawText("RootLocation =" + absoluteRootLoc, 10, 20, pm);
 				canvas.drawText("Origin Location =" + origin, 10, 30, pm);
-				canvas.drawLine(lastPoint.getX(),lastPoint.getY(), absoluteRootLoc.getX(), absoluteRootLoc.getY(),pm);
+				//canvas.drawLine(lastPoint.getX(),lastPoint.getY(), absoluteRootLoc.getX(), absoluteRootLoc.getY(),pm);
 				canvas.drawText("root->last mag=" + lastPoint.distanceTo(root.getLocation()), 10, 50, pm);
 			}
 		}
