@@ -428,7 +428,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             try {
                 thread.join();
                 retry = false;
-            } catch (InterruptedException e) {
+            } catch (InterruptedException e ) {
             }
         }
     }
