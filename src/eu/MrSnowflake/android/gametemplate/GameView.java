@@ -287,10 +287,11 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         	canvas.drawLine(lastStart.getX() , lastStart.getY(), current.getLocation().getX(), current.getLocation().getY(), pm); 
         	if(current.getChildren() == null)
         		return;
-        	pm.setColor(Color.BLUE);
+
         	for(TreeNode child : current.getChildren()) //draw from this node to every child node, then do the same for them (recurse)
         	{
         		if (child == null || child.getLocation() == null)
+        			continue;
         		//draw from this node to the child
             	canvas.drawLine(current.getLocation().getX(), current.getLocation().getY() , child.getLocation().getX(), child.getLocation().getY(), pm); 
             	drawTree(canvas,child,current.getLocation(),pm); //draw this child and its children!
