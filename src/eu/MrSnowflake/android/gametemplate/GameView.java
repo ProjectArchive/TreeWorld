@@ -321,7 +321,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
              * and speedups!
              */
             float thisdX = 0;
-            float thisdY = (float)elapsed*SPEED;
+            float thisdY = (float)(elapsed*SPEED);
             dX +=thisdX;
             dY +=thisdY;
             //root.translateChildren(dX, dY); // we could translate all of our children, but that is slow :(
@@ -330,7 +330,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             //if we have reached the next node
             if(Math.sqrt(Math.pow(dXSinceReadjust,2)+ Math.pow(dYSinceReadjust,2)) >= branchLength)
             {
-            	lastPoint = root.getLocation(); // keep track of our last point for drawing
+            	lastPoint = root.getLocation()	; // keep track of our last point for drawing
+            	lastPoint.translate(dXSinceReadjust,-dYSinceReadjust);
             	root = root.getChildren()[1]; // branch on the tree,
             	for(TreeNode child : root.getChildren())
             		child.branch(3, branchLength, lastPoint);

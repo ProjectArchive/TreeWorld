@@ -28,8 +28,8 @@ public class TreeNode {
 	
 	public void branch(int numChildren, float lengthOfBranch, Point parentLocation)
 	{
-		float xDif = parentLocation.getX()-this.location.getX();  // calculate the two displacement componenets
-		float yDif = parentLocation.getY() - this.location.getY(); // calculate the two displacement componenets
+		double xDif = parentLocation.getX()-this.location.getX();  // calculate the two displacement componenets
+		double yDif = parentLocation.getY() - this.location.getY(); // calculate the two displacement componenets
 		double thetaNought = Math.atan(xDif/yDif);
 		this.children = new TreeNode[numChildren];
 		for( int i =0; i < numChildren; i ++)

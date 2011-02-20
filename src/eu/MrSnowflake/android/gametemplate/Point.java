@@ -31,9 +31,9 @@ public class Point {
 		return "(" + this.x + "," + this.y + ")";
 	}
 	
-	public void translate(Point p)
+	public void translate(float dx, float dy)
 	{
-		this.x += p.getX();
-		this.y += p.getY();
+		this.x += dx;
+		this.y += dy;
 	}
 }
