@@ -2,6 +2,7 @@ package eu.MrSnowflake.android.gametemplate;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -9,6 +10,9 @@ import android.view.Window;
 import eu.MrSnowflake.android.gametemplate.GameView.GameThread;
 
 public class GameTemplate extends Activity {
+	
+	private PowerManager.WakeLock mWakeLock;
+	
     private static final int MENU_PAUSE = Menu.FIRST;
 
     private static final int MENU_RESUME = Menu.FIRST + 1;
@@ -78,6 +82,10 @@ public class GameTemplate extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        PowerManager pm = (PowerManager) getSystemService(GameTemplate.POWER_SERVICE);
+        mWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "Yay");
+        mWakeLock.acquire();
+        
         // turn off the window's title bar
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
