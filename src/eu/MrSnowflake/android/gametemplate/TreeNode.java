@@ -34,7 +34,7 @@ public class TreeNode {
 		this.children = new TreeNode[numChildren];
 		for( int i =0; i < numChildren; i ++)
 		{
-			double angleToTurn = thetaNought + ((1-i)*(Math.PI/3));
+			double angleToTurn = thetaNought + ((1-i)*(Math.PI/6));
 			float xDisp =(float)(lengthOfBranch*(Math.sin(angleToTurn)));
 			float yDisp =(float)(lengthOfBranch*(Math.cos(angleToTurn)));
 			//translate from this location by xDisp and yDisp to generate next node's locations

@@ -35,11 +35,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     	float dY;
     	float totalDX;
     	float totalDY;
-        
-        private float x;
-        private float y;
-        
-        private static final int SPEED = 20;
+    	double deltaY;
+    	double deltaX;
+    	double angleToRotate;
+        private static final int SPEED = 150;
         private float branchLength = 30;
         private float dXSinceReadjust = 0;
         private float dYSinceReadjust = 0;
@@ -72,9 +71,6 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             mHandler = handler;
             mContext = context;
         	
-            x = 10;
-            y = 10;
-            
         	mSnowflake = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.snowflake);
 
         }
@@ -86,8 +82,6 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             synchronized (mSurfaceHolder) {
             	// Initialize game here!
             	
-                x = 10;
-                y = 10;
                 lastPoint = new Point(mCanvasWidth/2,mCanvasHeight);
                 origin = new Point(mCanvasWidth/2,mCanvasHeight);
                 branchLength = mCanvasHeight /4;
@@ -261,6 +255,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         	canvas.save();
         	canvas.translate(dX, dY);
+        	canvas.rotate((float)angleToRotate, origin.getX(), origin.getY());
         	canvas.drawARGB(255, 0, 0, 0);
         	Paint pm = new Paint();
         	pm.setColor(Color.WHITE);
@@ -271,6 +266,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         	Point absoluteRootLoc = Point.translate(root.getLocation(),dX,dY);
         	canvas.drawText("RootLocation =" + absoluteRootLoc, 10, 20, pm);
         	canvas.drawText("Origin Location =" + origin, 10, 30, pm);
+        	canvas.drawText("Theta=(" +angleToRotate+ ")"  , 10, 40, pm);
         	canvas.drawLine(origin.getX(),origin.getY(), absoluteRootLoc.getX(), absoluteRootLoc.getY(),pm);
         	}
         }
@@ -332,8 +328,15 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             	for(TreeNode child : root.getChildren())
             	{
             		child.branch(3, branchLength, Point.translate(lastPoint, dXSinceReadjust, -dYSinceReadjust));
+            		for(TreeNode baby: child.getChildren())
+            		{
+            			baby.branch(3, branchLength, child.getLocation());
+            		}
             	}
             	//reset our accumulators
+            	 deltaX = (lastPoint.getX()-root.getLocation().getX());
+            	 deltaY =(lastPoint.getY()-root.getLocation().getX());
+            	 angleToRotate += Math.atan(deltaX/deltaY);
             	dXSinceReadjust =0;
             	dYSinceReadjust = 0;
             }
