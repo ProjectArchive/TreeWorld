@@ -26,6 +26,10 @@ public class GameTemplate extends Activity {
 
     /** A handle to the View in which the game is running. */
     private GameView mGameView;
+    
+    public enum GameState {
+        LOSE,PAUSE,READY,RUNNING,WIN
+    }
 
     /**
      * Invoked during init to give the Activity a chance to set up its Menu.
@@ -59,7 +63,7 @@ public class GameTemplate extends Activity {
                 mGameThread.doStart();
                 return true;
             case MENU_STOP:
-                mGameThread.setState(GameThread.STATE_LOSE);
+                mGameThread.setState(GameState.LOSE);
                 return true;
             case MENU_PAUSE:
                 mGameThread.pause();
@@ -97,7 +101,7 @@ public class GameTemplate extends Activity {
         mGameThread = mGameView.getThread();
 
         // set up a new game
-        mGameThread.setState(GameThread.STATE_READY);
+        mGameThread.setState(GameState.READY);
         Log.w(this.getClass().getName(), "SIS is null");
     }
 

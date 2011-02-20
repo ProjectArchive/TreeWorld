@@ -1,5 +1,6 @@
 package eu.MrSnowflake.android.gametemplate;
 
+import eu.MrSnowflake.android.gametemplate.GameTemplate.GameState;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,11 +34,6 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     	float dY;
     	float totalDX;
     	float totalDY;
-        public static final int STATE_LOSE = 1;
-        public static final int STATE_PAUSE = 2;
-        public static final int STATE_READY = 3;
-        public static final int STATE_RUNNING = 4;
-        public static final int STATE_WIN = 5;
         
         private float x;
         private float y;
@@ -62,7 +58,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private Handler mHandler;
 
          /** The state of the game. One of READY, RUNNING, PAUSE, LOSE, or WIN */
-        private int mMode;
+        private GameState mMode;
         /** Indicate whether the surface has been created & is ready to draw */
         private boolean mRun = false;
         /** Handle to the surface manager object we interact with */
@@ -100,7 +96,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             		tn.branch(3, branchLength, root.getLocation());
             	}
                 mLastTime = System.currentTimeMillis() + 100;
-                setState(STATE_RUNNING);
+                setState(GameState.RUNNING);
             }
         }
 
@@ -109,8 +105,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
          */
         public void pause() {
             synchronized (mSurfaceHolder) {
-                if (mMode == STATE_RUNNING) 
-                	setState(STATE_PAUSE);
+                if (mMode == GameState.RUNNING) 
+                	setState(GameState.PAUSE);
             }
         }
 
@@ -121,7 +117,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 try {
                     c = mSurfaceHolder.lockCanvas(null);
                     synchronized (mSurfaceHolder) {
-                        if (mMode == STATE_RUNNING) 
+                        if (mMode == GameState.RUNNING) 
                         	updateGame();
                         doDraw(c);
                     }
@@ -155,7 +151,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
          * @see #setState(int, CharSequence)
          * @param mode one of the STATE_* constants
          */
-        public void setState(int mode) {
+        public void setState(GameState mode) {
             synchronized (mSurfaceHolder) {
                 setState(mode, null);
             }
@@ -168,7 +164,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
          * @param mode one of the STATE_* constants
          * @param message string to add to screen or null
          */
-        public void setState(int mode, CharSequence message) {
+        public void setState(GameState mode, CharSequence message) {
             synchronized (mSurfaceHolder) {
                 mMode = mode;
             }
@@ -191,7 +187,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             synchronized (mSurfaceHolder) {
                 mLastTime = System.currentTimeMillis() + 100;
             }
-            setState(STATE_RUNNING);
+            setState(GameState.RUNNING);
         }
 
         /**
@@ -433,7 +429,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             try {
                 thread.join();
                 retry = false;
-            } catch (InterruptedException e ) {
+            } catch (InterruptedException e) {
             }
         }
     }
