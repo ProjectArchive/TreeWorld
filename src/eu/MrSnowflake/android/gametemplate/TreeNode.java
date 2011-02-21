@@ -26,11 +26,13 @@ public class TreeNode {
 		this.displacement = displacement;
 	}
 	
-	public void branch(int numChildren, float lengthOfBranch, Point displacementFromParentToMe)
+	public void branch(int numChildren, float lengthOfBranch)
 	{
+		//in the case of root's children
+		//x=0,Y=-15
 		//Calculate the x and y displacement of the branching node from its parent (for use with angle computation)
-		double xDif = displacementFromParentToMe.getX();
-		double yDif = displacementFromParentToMe.getY();
+		double xDif = this.displacement.getX();
+		double yDif = -this.displacement.getY();
 		//Compute the angle of the current node by comparing it to its parent location
 		double thetaNought = Math.atan(xDif/yDif);	
 		//Make empty children for the current node
@@ -43,11 +45,12 @@ public class TreeNode {
 				//thetaNought += Math.PI;
 			double angleToTurn = thetaNought + ((1-i)*(Math.PI/6));
 			//double angleToTurn = thetaNought + ((1-i)*(Math.PI/2));
-			if(yDif<0)
+			/*if(yDif<0)
 			{
 			Log.i("Theta0=" + thetaNought + " angleToTurn="+angleToTurn, "debugangles");
 			angleToTurn += Math.PI;
 			}
+			*/
 			
 			float xDisp =(float)(lengthOfBranch*(Math.sin(angleToTurn)));
 			float yDisp =(float)(lengthOfBranch*(Math.cos(angleToTurn)));			

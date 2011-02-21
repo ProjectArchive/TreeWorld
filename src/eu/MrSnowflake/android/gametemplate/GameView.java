@@ -116,10 +116,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				branchLength = mCanvasHeight /20;
 				root = new TreeNode(null,new Point (0,-branchLength)); // displacement from
 				previousRoot = new TreeNode(new TreeNode[]{root},new Point(0,branchLength));
-				root.branch(3, branchLength, previousRoot.getDisplacement());
+				root.branch(3, branchLength);
 				for(TreeNode tn : root.getChildren())
 				{
-				//	tn.branch(3, branchLength, root.getDisplacement());
+					tn.branch(3, branchLength);
 					/*//MORE RECURSION
 					
 					for(TreeNode tnc :tn.getChildren())
@@ -351,9 +351,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					pm.setColor(Color.GREEN);
 */
 				//draw from this node to the child
-				Point childsAbsolutePoint = Point.translate(absoluteOriginOfDrawing, current.getDisplacement().getX(),current.getDisplacement().getY());
-				canvas.drawLine(absoluteOriginOfDrawing.getX(), absoluteOriginOfDrawing.getY() , childsAbsolutePoint.getX(), childsAbsolutePoint.getY(), pm); 
-				drawTree(canvas,child,childsAbsolutePoint,pm); //draw this child and its children!
+				Point currentAbsolutePoint = Point.translate(absoluteOriginOfDrawing, current.getDisplacement().getX(),current.getDisplacement().getY());
+				Point childsAbsolutePoint = Point.translate(currentAbsolutePoint, child.getDisplacement().getX(),child.getDisplacement().getY());
+				canvas.drawLine(currentAbsolutePoint.getX(), currentAbsolutePoint.getY() , childsAbsolutePoint.getX(), childsAbsolutePoint.getY(), pm); 
+				drawTree(canvas,child,currentAbsolutePoint,pm); //draw this child and its children!
 				i++;
 			}
 		}
@@ -395,7 +396,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				root = root.getChildren()[1]; // branch on the tree, This is hacked, just choosing the right node
 				for(TreeNode child : root.getChildren())
 				{
-					child.branch(3, branchLength, child.getDisplacement()); //NEW, JULIAN
+					child.branch(3, branchLength); //NEW, JULIAN
 					//child.branch(3, branchLength, Point.translate(root.getLocation(),0, dYSinceReadjust)); //OLD, CORY
 					/*//MORE RECURSION
 					for(TreeNode baby: child.getChildren())
