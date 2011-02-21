@@ -314,7 +314,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				pm.setColor(Color.RED);
 				canvas.drawLine(origin.getX(), origin.getY(), origin.getX(),0, pm);
 			
-				drawTree(canvas, previousRoot,Point.translate(origin, previousRoot.getDisplacement().getX(), previousRoot.getDisplacement().getY()),pm);//draw the tree
+				drawTree(canvas, previousRoot,origin,pm);//draw the tree
 				
 				//draw debug root,prevroot,origin locations
 				pm.setColor(Color.YELLOW);
