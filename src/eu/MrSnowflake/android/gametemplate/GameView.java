@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Handler;
 import android.os.Message;
@@ -54,8 +55,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		TreeNode root; //the current root, the first node seen on screen
 		TreeNode previousRoot; // the previous root, kept track of for drawing purposes.
 		//TreeNode previousRootRoot;
-		float originY; //the point from which the tree originates
-		float originX; //the point from which the tree originates
+		Point origin;
 
 		
 		
@@ -71,10 +71,11 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		private double coefficientDX = 0.0;//coefficient of canvas movement
 		private double coefficientDY = 1.0; //coefficient of canvas movement 1.0 to start in order to translate vertically
 		double angleToRotate;
-		private static final int SPEED = 10; //canvas scroll speed in pixels per second
+		private static final int SPEED = 0; //canvas scroll speed in pixels per second
 		private float branchLength;
 		
-
+		Matrix stationaryMatrix = null;
+		
 		private boolean dRight;
 		private boolean dLeft;
 		private boolean dUp;
@@ -111,15 +112,14 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		public void doStart() {
 			synchronized (mSurfaceHolder) {
 				// Initialize game here!
-				originX = mCanvasWidth/2;
-				originY = mCanvasHeight -50;
+				origin = new Point(mCanvasWidth/2,mCanvasHeight -300);
 				branchLength = mCanvasHeight /20;
 				root = new TreeNode(null,new Point (0,-branchLength)); // displacement from
 				previousRoot = new TreeNode(new TreeNode[]{root},new Point(0,branchLength));
-				root.branch(3, branchLength, root.getDisplacement());
+				root.branch(3, branchLength, previousRoot.getDisplacement());
 				for(TreeNode tn : root.getChildren())
 				{
-					tn.branch(3, branchLength, tn.getDisplacement());
+					tn.branch(3, branchLength, root.getDisplacement());
 					/*//MORE RECURSION
 					
 					for(TreeNode tnc :tn.getChildren())
@@ -291,19 +291,42 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 
 		private void doDraw(Canvas canvas) {
+			if(stationaryMatrix == null)
+				stationaryMatrix = canvas.getMatrix();
 			if (root != null && canvas != null) //only draw tree if not null
 			{
+				canvas.setMatrix(stationaryMatrix);
 				canvas.drawARGB(255, 0, 0, 0); //draw black background
 				Paint pm =new Paint();
 				pm.setColor(Color.WHITE);
-				canvas.drawText("helloworld", 10, 10, pm);
+				pm.setColor(Color.MAGENTA);
+				canvas.drawText("root: "+root.getDisplacement().toString(), 10, 10, pm);
+				pm.setColor(Color.YELLOW);
+				canvas.drawText("prevroot: "+previousRoot.getDisplacement().toString(), 10, 20, pm);
+				pm.setColor(Color.GREEN);
+				canvas.drawText("origin" +origin.toString(), 10, 30, pm);
 				canvas.restore();
-
-
-					canvas.translate(0, 100);
-					canvas.drawText("Wow!", 30, 10, pm);
-					canvas.save();
-				canvas.drawText("NO!", 100, 10, pm);
+//				canvas.drawText("Imove", 30, 10, pm);
+				
+			//draw the cartesian axis
+				pm.setColor(Color.BLUE);
+				canvas.drawLine(0, origin.getY(), mCanvasWidth, origin.getY(), pm);
+				pm.setColor(Color.RED);
+				canvas.drawLine(origin.getX(), origin.getY(), origin.getX(),0, pm);
+			
+				drawTree(canvas, previousRoot,Point.translate(origin, previousRoot.getDisplacement().getX(), previousRoot.getDisplacement().getY()),pm);//draw the tree
+				
+				//draw debug root,prevroot,origin locations
+				pm.setColor(Color.YELLOW);
+				Point prevRootAbsolute = Point.translate(origin, previousRoot.getDisplacement().getX(), previousRoot.getDisplacement().getY());
+				canvas.drawCircle(prevRootAbsolute.getX(), prevRootAbsolute.getY(), 7, pm);
+				pm.setColor(Color.MAGENTA);
+				Point rootAbsolute = Point.translate(prevRootAbsolute, root.getDisplacement().getX(), root.getDisplacement().getY());
+				canvas.drawCircle(rootAbsolute.getX(), rootAbsolute.getY(), 5, pm);
+				pm.setColor(Color.GREEN);
+				canvas.drawCircle(origin.getX(), origin.getY(), 3, pm);				
+				canvas.translate(dX,dY);
+				canvas.save();
 			}
 		}
 		public void drawTree(Canvas canvas,TreeNode current,Point absoluteOriginOfDrawing, Paint pm)
@@ -319,13 +342,13 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			{
 				if (child == null || child.getDisplacement() == null)
 					continue;
-				if(i==0)
+				/*if(i==0)
 					pm.setColor(Color.MAGENTA);
 				else if ( i==1)
 					pm.setColor(Color.YELLOW);
 				else if (i==2)
 					pm.setColor(Color.GREEN);
-
+*/
 				//draw from this node to the child
 				Point childsAbsolutePoint = Point.translate(absoluteOriginOfDrawing, current.getDisplacement().getX(),current.getDisplacement().getY());
 				canvas.drawLine(absoluteOriginOfDrawing.getX(), absoluteOriginOfDrawing.getY() , childsAbsolutePoint.getX(), childsAbsolutePoint.getY(), pm); 
@@ -368,7 +391,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			{
 				
 				previousRoot = root; // keep track of our last point for drawing
-				root = root.getChildren()[2]; // branch on the tree, This is hacked, just choosing the right node
+				root = root.getChildren()[1]; // branch on the tree, This is hacked, just choosing the right node
 				for(TreeNode child : root.getChildren())
 				{
 					child.branch(3, branchLength, child.getDisplacement()); //NEW, JULIAN
