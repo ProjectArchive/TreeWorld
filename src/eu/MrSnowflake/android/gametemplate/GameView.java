@@ -60,7 +60,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		private double coefficientDX = 0.0;
 		private double coefficientDY = 1.0;
 		double angleToRotate;
-		private static final int SPEED = 7;
+		private static final int SPEED = 5;
 		private float branchLength;
 		
 
@@ -73,8 +73,6 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		private int mCanvasHeight;
 
 		private long mLastTime;
-		private Bitmap mSnowflake;
-
 		/** Message handler used by thread to post stuff back to the GameView */
 		private Handler mHandler;
 
@@ -102,9 +100,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		public void doStart() {
 			synchronized (mSurfaceHolder) {
 				// Initialize game here!
-				originX = 20;
+				originX = 100;
 				originY = mCanvasHeight-200;
-				root = new TreeNode(null,new Point (originX ,originY -20));
+				root = new TreeNode(null,new Point (originX,originY-30));
 				//root = new TreeNode(null,new Point ((mCanvasWidth/2) ,mCanvasHeight*3/4));
 				previousRoot = new TreeNode(new TreeNode[]{root},new Point(originX ,originY));
 			//	previousRootRootLocation = previousRoot.getLocation();
@@ -128,6 +126,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				setState(GameState.RUNNING);
 			}
 		}
+
+		private Bitmap mSnowflake;
 
 		/**
 		 * Pauses the physics update & animation.
