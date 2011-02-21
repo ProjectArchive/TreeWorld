@@ -350,7 +350,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			dXSinceReadjust += thisdX;
 			//we are near the end node
 			//TODO: THIS NEEDS TO BE FIXED.
-			if(dYSinceReadjust >= previousRoot.getLocation().getY() -root.getLocation().getY())
+			if(Math.sqrt(Math.pow(dXSinceReadjust,2) +Math.pow(dYSinceReadjust,2)) >= branchLength)
 			{
 				
 				previousRootRootLocation = previousRoot.getLocation(); // we need the previous root's location for drawing the whole tree
