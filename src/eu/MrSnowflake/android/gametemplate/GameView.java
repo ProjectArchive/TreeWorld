@@ -283,8 +283,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			if (root != null) //only draw tree if not null
 			{
 				canvas.save(); //save the current canvas location, so we can draw on the device's absolute pixels
-				canvas.translate(dX, dY); //translate to simulate motion
 				canvas.rotate((float)angleToRotate, previousRoot.getLocation().getX(), previousRoot.getLocation().getY());
+				canvas.translate(dX, dY); //translate to simulate motion
+				//canvas.rotate((float)angleToRotate, previousRoot.getLocation().getX(), previousRoot.getLocation().getY()); this used to work
 				canvas.drawARGB(255, 0, 0, 0); //draw black background
 				Paint pm = new Paint();
 				pm.setColor(Color.WHITE);
@@ -372,7 +373,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				
 				previousRootRootLocation = previousRoot.getLocation(); // we need the previous root's location for drawing the whole tree
 				previousRoot = root; // keep track of our last point for drawing
-				root = root.getChildren()[2]; // branch on the tree, This is hacked, just choosing the central node
+				root = root.getChildren()[2]; // branch on the tree, This is hacked, just choosing the right node
 
 				for(TreeNode child : root.getChildren())
 				{
@@ -390,14 +391,16 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				}
 				
 				
-				angleToRotate -= 30; //right turn, debug only
 				//reset our accumulators
+				/*
 				float nextDispX = previousRoot.getLocation().getX()-root.getLocation().getX();
 				float nextDispY = previousRoot.getLocation().getY()-root.getLocation().getY();
 				float magnitude = previousRoot.getLocation().distanceTo(root.getLocation()); 
-				
-				coefficientDX=Math.sin(angleToRotate*Math.PI/180); //coefficient of canvas velocity
-				coefficientDY= Math.cos(angleToRotate*Math.PI/180); //coefficient of canvas velocity
+				*/
+				angleToRotate -= 30; //right turn, debug only
+				//coefficientDX=Math.sin(angleToRotate*Math.PI/180); //coefficient of canvas velocity
+				coefficientDY= Math.cos(0*Math.PI/180); //coefficient of canvas velocity
+
 				dYSinceReadjust = 0;
 				dXSinceReadjust = 0;
 			}
