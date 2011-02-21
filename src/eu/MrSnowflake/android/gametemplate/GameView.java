@@ -83,7 +83,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				previousRoot = new TreeNode(new TreeNode[]{root},new Point(mCanvasWidth/2 ,mCanvasHeight));
 			//	previousRootRootLocation = previousRoot.getLocation();
 			//	previousRootRoot = previousRoot;
-				branchLength = mCanvasHeight /3;
+				branchLength = mCanvasHeight /20;
 				root.branch(3, branchLength, previousRoot.getLocation());
 				for(TreeNode tn : root.getChildren())
 				{
@@ -259,12 +259,13 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			{
 				canvas.save(); //save the current canvas location, so we can draw on the device's absolute pixels
 				canvas.translate(0, dY); //translate to simulate motion
-				canvas.rotate((float)angleToRotate, previousRoot.getLocation().getX(), previousRoot.getLocation().getY());
+				//canvas.rotate((float)angleToRotate, previousRoot.getLocation().getX(), previousRoot.getLocation().getY());
 				canvas.drawARGB(255, 0, 0, 0); //draw black background
 				Paint pm = new Paint();
 				pm.setColor(Color.WHITE);
 				//drawTree(canvas,previousRoot,new Point(mCanvasWidth/2,mCanvasHeight),pm); //first draw the tree, from the previous root
-				drawTree(canvas,previousRoot,new Point(mCanvasWidth/2,mCanvasHeight),pm);
+				canvas.drawLine(previousRoot.getLocation().getX(), previousRoot.getLocation().getY(), mCanvasWidth/2, mCanvasHeight, pm);
+				drawTree(canvas,previousRoot,pm);
 				/***
 				 * draw root and previous root
 				 */
@@ -283,21 +284,30 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				canvas.drawText("root->last mag=" + previousRoot.getLocation().distanceTo(root.getLocation()), 10, 30, pm);
 			}
 		}
-		public void drawTree(Canvas canvas,TreeNode current,Point lastStart, Paint pm)
+		public void drawTree(Canvas canvas,TreeNode current, Paint pm)
 		{
+			pm.setColor(Color.WHITE);
 			if(current.getLocation() == null)
 				return;
 			//draw from the last node to this node (in the case of root, draw offscreen to this node)
-			canvas.drawLine(lastStart.getX() , lastStart.getY(), current.getLocation().getX(), current.getLocation().getY(), pm); 
 			if(current.getChildren() == null)
 				return;
+			int i = 0;
 			for(TreeNode child : current.getChildren()) //draw from this node to every child node, then do the same for them (recurse)
 			{
 				if (child == null || child.getLocation() == null)
 					continue;
+				if(i==0)
+					pm.setColor(Color.MAGENTA);
+				else if ( i==1)
+					pm.setColor(Color.YELLOW);
+				else if (i==2)
+					pm.setColor(Color.GREEN);
+
 				//draw from this node to the child
 				canvas.drawLine(current.getLocation().getX(), current.getLocation().getY() , child.getLocation().getX(), child.getLocation().getY(), pm); 
-				drawTree(canvas,child,current.getLocation(),pm); //draw this child and its children!
+				drawTree(canvas,child,pm); //draw this child and its children!
+				i++;
 			}
 		}
 
@@ -331,8 +341,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			//TODO: THIS NEEDS TO BE FIXED.
 			if(dYSinceReadjust >= previousRoot.getLocation().getY() -root.getLocation().getY())
 			{
+				
 				previousRootRootLocation = previousRoot.getLocation(); // we need the previous root's location for drawing the whole tree
-				previousRoot = root;	; // keep track of our last point for drawing
+				previousRoot = root; // keep track of our last point for drawing
 				root = root.getChildren()[2]; // branch on the tree, This is hacked, just choosing the central node
 
 				for(TreeNode child : root.getChildren())
