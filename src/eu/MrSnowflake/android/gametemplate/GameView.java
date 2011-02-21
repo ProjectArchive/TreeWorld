@@ -58,6 +58,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		float originY; //the point from which the tree originates
 		float originX; //the point from which the tree originates
 
+		boolean shouldSave = false;
 		float dY;
 		float dX;
 		private float dYSinceReadjust = 0; //the amount we have scrolled in the DY since the last exchange of root and previousroot
@@ -65,7 +66,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		private double coefficientDX = 0.0;//coefficient of canvas movement
 		private double coefficientDY = 1.0; //coefficient of canvas movement 1.0 to start in order to translate vertically
 		double angleToRotate;
-		private static final int SPEED = 5; //canvas scroll speed in pixels per second
+		private static final int SPEED = 10; //canvas scroll speed in pixels per second
 		private float branchLength;
 		
 
@@ -105,8 +106,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		public void doStart() {
 			synchronized (mSurfaceHolder) {
 				// Initialize game here!
-				originX = 100;
-				originY = mCanvasHeight-200;
+				originX = mCanvasWidth/2;
+				originY = mCanvasHeight -50;
 				root = new TreeNode(null,new Point (originX,originY-30));
 				//root = new TreeNode(null,new Point ((mCanvasWidth/2) ,mCanvasHeight*3/4));
 				previousRoot = new TreeNode(new TreeNode[]{root},new Point(originX ,originY));
@@ -290,33 +291,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		private void doDraw(Canvas canvas) {
 			if (root != null && canvas != null) //only draw tree if not null
 			{
-				canvas.save(); //save the current canvas location, so we can draw on the device's absolute pixels
-				canvas.rotate((float)angleToRotate, previousRoot.getLocation().getX(), previousRoot.getLocation().getY());
-				canvas.translate(dX, dY); //translate to simulate motion
-				//canvas.rotate((float)angleToRotate, previousRoot.getLocation().getX(), previousRoot.getLocation().getY()); this used to work
-				canvas.drawARGB(255, 0, 0, 0); //draw black background
-				Paint pm = new Paint();
+				Paint pm =new Paint();
 				pm.setColor(Color.WHITE);
-				drawTree(canvas,previousRoot,pm);
-				/***
-				 * draw root and previous root
-				 */
-				pm.setColor(Color.BLUE);
-				canvas.drawCircle(previousRoot.getLocation().getX(), previousRoot.getLocation().getY(), 2, pm);
-				pm.setColor(Color.RED);
-				canvas.drawCircle(root.getLocation().getX(), root.getLocation().getY(), 2, pm);
-				canvas.restore(); // back to relative to (0,0)
-				
-				/**
-				 * Debug text printing, state information
-				 */
-				pm.setColor(Color.WHITE);
-				canvas.drawText("Screen =" + "(" + canvas.getWidth() + " x " + canvas.getHeight() + ")" + " lastPoint =" + previousRoot.getLocation(), 10, 10, pm);
-				Point absoluteRootLoc = Point.translate(root.getLocation(),0,dY);
-				canvas.drawText("RootLocation =" + absoluteRootLoc, 10, 20, pm);
-				canvas.drawText("root->last mag=" + previousRoot.getLocation().distanceTo(root.getLocation()), 10, 30, pm);
-				canvas.drawText("CoefficientX:" + this.coefficientDX, 10, 40, pm);
-				canvas.drawText( "CoefficientY:" + this.coefficientDY,10,50,pm);
+				canvas.drawText("helloworld", 10, 10,pm );
 			}
 		}
 		public void drawTree(Canvas canvas,TreeNode current, Paint pm)
@@ -368,10 +345,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			 * your character will only walk half as fast as at the 25fps frame rate. Elapsed lets you manage the slowdowns
 			 * and speedups!
 			 */
-			float thisdY = (float)(elapsed*SPEED*coefficientDY); //the total change in dy this timestep
-			float thisdX = (float)(elapsed*SPEED*coefficientDX); //the total change in dX this timestep
-			dY +=thisdY; //dY is the total dY, over time (since the begining of the applicaiton's lifecycle
-			dX +=thisdX;
+			float thisdY = (float)(elapsed*SPEED*coefficientDX); //the total change in dy this timestep
+			float thisdX = (float)(elapsed*SPEED*coefficientDY); //the total change in dX this timestep
+			dY =thisdY; //dY is the total dY, over time (since the begining of the applicaiton's lifecycle
+			dX =thisdX;
 			dYSinceReadjust += thisdY;
 			dXSinceReadjust += thisdX;
 			//we are near the end node
@@ -405,12 +382,13 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				float nextDispY = previousRoot.getLocation().getY()-root.getLocation().getY();
 				float magnitude = previousRoot.getLocation().distanceTo(root.getLocation()); 
 				*/
-				angleToRotate -= 30; //right turn, debug only
-				//coefficientDX=Math.sin(angleToRotate*Math.PI/180); //coefficient of canvas velocity
-				coefficientDY= Math.cos(0*Math.PI/180); //coefficient of canvas velocity
+				angleToRotate += 30; //right turn, debug only
+				coefficientDX=Math.sin(-30*Math.PI/180); //coefficient of canvas velocity
+				coefficientDY= Math.cos(-30*Math.PI/180); //coefficient of canvas velocity
 
 				dYSinceReadjust = 0;
 				dXSinceReadjust = 0;
+				shouldSave = true;
 			}
 
 		}
