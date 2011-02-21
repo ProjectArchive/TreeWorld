@@ -78,7 +78,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		public void doStart() {
 			synchronized (mSurfaceHolder) {
 				// Initialize game here!
-				root = new TreeNode(null,new Point ((mCanvasWidth/2 + 15) ,mCanvasHeight*3/4));
+				root = new TreeNode(null,new Point ((mCanvasWidth/2) ,mCanvasHeight*3/4));
 				//root = new TreeNode(null,new Point ((mCanvasWidth/2) ,mCanvasHeight*3/4));
 				previousRoot = new TreeNode(new TreeNode[]{root},new Point(mCanvasWidth/2 ,mCanvasHeight));
 				previousRootRootLocation = previousRoot.getLocation();
@@ -257,6 +257,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			{
 				canvas.save(); //save the current canvas location, so we can draw on the device's absolute pixels
 				canvas.translate(0, dY); //translate to simulate motion
+				canvas.rotate(-60, root.getLocation().getX(), root.getLocation().getY());
 				canvas.drawARGB(255, 0, 0, 0); //draw black background
 				Paint pm = new Paint();
 				pm.setColor(Color.WHITE);
@@ -330,7 +331,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			{
 				previousRootRootLocation = previousRoot.getLocation(); // we need the previous root's location for drawing the whole tree
 				previousRoot = root;	; // keep track of our last point for drawing
-				root = root.getChildren()[1]; // branch on the tree, This is hacked, just choosing the central node
+				root = root.getChildren()[2]; // branch on the tree, This is hacked, just choosing the central node
 
 				for(TreeNode child : root.getChildren())
 				{
