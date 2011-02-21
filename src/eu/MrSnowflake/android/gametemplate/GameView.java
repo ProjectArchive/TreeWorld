@@ -87,13 +87,14 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				root.branch(3, branchLength, previousRoot.getLocation());
 				for(TreeNode tn : root.getChildren())
 				{
+					/*//MORE RECURSION
 					tn.branch(3, branchLength, root.getLocation());
 					for(TreeNode tnc :tn.getChildren())
 					{
 						tnc.branch(3, branchLength, tn.getLocation());
 						for(TreeNode tncc:tnc.getChildren())
 							tncc.branch(3, branchLength, tnc.getLocation());
-					}
+					}*/
 				
 				}
 				mLastTime = System.currentTimeMillis() + 100;
@@ -338,6 +339,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					
 					child.branch(3, branchLength, root.getLocation()); //NEW, JULIAN
 					//child.branch(3, branchLength, Point.translate(root.getLocation(),0, dYSinceReadjust)); //OLD, CORY
+					/*//MORE RECURSION
 					for(TreeNode baby: child.getChildren())
 					{
 						baby.branch(3, branchLength, child.getLocation());
@@ -345,7 +347,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 						{
 							zygote.branch(3, branchLength, child.getLocation());
 						}
-					}
+					}*/
 				}
 				//reset our accumulators
 
