@@ -42,6 +42,12 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 	
 	class GameThread extends Thread {
+		
+		private boolean mDone;
+        private boolean mPaused;
+        private boolean mHasFocus;
+        private boolean mHasSurface;
+        private boolean mContextLost;
 		/*
 		 * State-tracking constants
 		 */
@@ -123,6 +129,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				}
 				mLastTime = System.currentTimeMillis() + 100;
 				setState(GameState.RUNNING);
+				thread.setRunning(true);
+				thread.start();
 			}
 		}
 
@@ -280,7 +288,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 
 		private void doDraw(Canvas canvas) {
-			if (root != null) //only draw tree if not null
+			if (root != null && canvas != null) //only draw tree if not null
 			{
 				canvas.save(); //save the current canvas location, so we can draw on the device's absolute pixels
 				canvas.rotate((float)angleToRotate, previousRoot.getLocation().getX(), previousRoot.getLocation().getY());
@@ -406,6 +414,61 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			}
 
 		}
+		private boolean needToWait() {
+            return (mPaused || (! mHasFocus) || (! mHasSurface) || mContextLost)
+                && (! mDone);
+        }
+
+        public void surfaceCreated() {
+            synchronized(this) {
+                mHasSurface = true;
+                mContextLost = false;
+                notify();
+            }
+        }
+
+        public void surfaceDestroyed() {
+            synchronized(this) {
+                mHasSurface = false;
+                notify();
+            }
+        }
+
+        public void onPause() {
+            synchronized (this) {
+                mPaused = true;
+            }
+        }
+
+        public void onResume() {
+            synchronized (this) {
+                mPaused = false;
+                notify();
+            }
+        }
+
+        public void onWindowFocusChanged(boolean hasFocus) {
+            synchronized (this) {
+                mHasFocus = hasFocus;
+                if (mHasFocus == true) {
+                    notify();
+                }
+            }
+        }
+
+        public void requestExitAndWait() {
+            // don't call this from CanvasThread thread or it is a guaranteed
+            // deadlock!
+            synchronized(this) {
+                mDone = true;
+                notify();
+            }
+            try {
+                join();
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
+        }
 	}
 
 	/** Handle to the application context, used to e.g. fetch Drawables. */
@@ -481,8 +544,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	public void surfaceCreated(SurfaceHolder holder) {
 		// start the thread here so that we don't busy-wait in run()
 		// waiting for the surface to be created
-		thread.setRunning(true);
-		thread.start();
+		thread.surfaceCreated();
 	}
 
 	/*
@@ -493,15 +555,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		// we have to tell thread to shut down & wait for it to finish, or else
 		// it might touch the Surface after we return and explode
-		boolean retry = true;
-		thread.setRunning(false);
-		while (retry) {
-			try {
-				thread.join();
-				retry = false;
-			} catch (InterruptedException e) {
-			}
-		}
+		thread.surfaceDestroyed();
 	}
 	
 	class SwipeDetector extends SimpleOnGestureListener {

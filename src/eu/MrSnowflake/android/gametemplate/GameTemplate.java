@@ -111,13 +111,14 @@ public class GameTemplate extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        mGameView.getThread().pause(); // pause game when Activity pauses
+        mGameView.getThread().onPause(); // pause game when Activity pauses
         mWakeLock.release();
     }
     
     @Override
     protected void onResume() {
     	super.onResume();
+    	mGameView.getThread().onResume();
     	mWakeLock.acquire();
     }
 }
