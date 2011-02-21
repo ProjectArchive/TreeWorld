@@ -33,7 +33,12 @@ public class TreeNode {
 		double xDif = parentLocation.getX()-this.location.getX();
 		double yDif = parentLocation.getY() - this.location.getY();
 		//Compute the angle of the current node by comparing it to its parent location
+
 		double thetaNought = Math.atan(xDif/yDif);
+		if(yDif<0)
+		{
+		thetaNought= Math.PI-thetaNought;	
+		}
 		
 		//Make empty children for the current node
 		this.children = new TreeNode[numChildren];

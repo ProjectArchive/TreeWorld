@@ -31,12 +31,14 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		TreeNode root; //the current root, the first node seen on screen
 		TreeNode previousRoot; // the previous root, kept track of for drawing purposes.
 		//TreeNode previousRootRoot;
+		float originY; //the point from which the tree originates
+		float originX; //the point from which the tree originates
 		Point previousRootRootLocation; //the point from previousRoot's parent, used for drawing purposes.
 		float dY;
 		float totalDY;
 		double deltaY;
 		double angleToRotate;
-		private static final int SPEED = 20;
+		private static final int SPEED = 10;
 		private float branchLength;
 		private float dYSinceReadjust = 0;
 
@@ -78,9 +80,11 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		public void doStart() {
 			synchronized (mSurfaceHolder) {
 				// Initialize game here!
-				root = new TreeNode(null,new Point ((mCanvasWidth/2) ,mCanvasHeight*3/4));
+				originX = 20;
+				originY = mCanvasHeight-200;
+				root = new TreeNode(null,new Point (originX ,originY -20));
 				//root = new TreeNode(null,new Point ((mCanvasWidth/2) ,mCanvasHeight*3/4));
-				previousRoot = new TreeNode(new TreeNode[]{root},new Point(mCanvasWidth/2 ,mCanvasHeight));
+				previousRoot = new TreeNode(new TreeNode[]{root},new Point(originX ,originY));
 			//	previousRootRootLocation = previousRoot.getLocation();
 			//	previousRootRoot = previousRoot;
 				branchLength = mCanvasHeight /20;
@@ -263,16 +267,14 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				canvas.drawARGB(255, 0, 0, 0); //draw black background
 				Paint pm = new Paint();
 				pm.setColor(Color.WHITE);
-				//drawTree(canvas,previousRoot,new Point(mCanvasWidth/2,mCanvasHeight),pm); //first draw the tree, from the previous root
-				canvas.drawLine(previousRoot.getLocation().getX(), previousRoot.getLocation().getY(), mCanvasWidth/2, mCanvasHeight, pm);
 				drawTree(canvas,previousRoot,pm);
 				/***
 				 * draw root and previous root
 				 */
 				pm.setColor(Color.BLUE);
-				canvas.drawCircle(previousRoot.getLocation().getX(), previousRoot.getLocation().getY(), 10, pm);
+				canvas.drawCircle(previousRoot.getLocation().getX(), previousRoot.getLocation().getY(), 2, pm);
 				pm.setColor(Color.RED);
-				canvas.drawCircle(root.getLocation().getX(), root.getLocation().getY(), 10, pm);
+				canvas.drawCircle(root.getLocation().getX(), root.getLocation().getY(), 2, pm);
 				canvas.restore(); // back to relative to (0,0)
 				
 				/**
