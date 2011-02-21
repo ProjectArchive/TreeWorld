@@ -35,10 +35,8 @@ public class TreeNode {
 		//Compute the angle of the current node by comparing it to its parent location
 
 		double thetaNought = Math.atan(xDif/yDif);
-		if(yDif<0)
-		{
-		thetaNought= Math.PI-thetaNought;	
-		}
+//		if(yDif<0)
+		//thetaNought= Math.PI-thetaNought;	
 		
 		//Make empty children for the current node
 		this.children = new TreeNode[numChildren];
@@ -50,10 +48,7 @@ public class TreeNode {
 			//double angleToTurn = thetaNought + ((1-i)*(Math.PI/2));
 			
 			float xDisp =(float)(lengthOfBranch*(Math.sin(angleToTurn)));
-			float yDisp =(float)(lengthOfBranch*(Math.cos(angleToTurn)));
-			
-
-			
+			float yDisp =(float)(lengthOfBranch*(Math.cos(angleToTurn)));			
 			//translate from this location by xDisp and yDisp to generate next node's locations
 			//Point childLoc = new Point(xDisp + this.getLocation().getX(),yDisp + this.getLocation().getY()); // decsribe childoc
 			children[i] = new TreeNode(null,new Point(this.getLocation().getX()-xDisp,this.getLocation().getY()-yDisp));
