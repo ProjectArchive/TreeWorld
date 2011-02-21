@@ -30,13 +30,14 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		 */
 		TreeNode root; //the current root, the first node seen on screen
 		TreeNode previousRoot; // the previous root, kept track of for drawing purposes.
+		TreeNode previousRootRoot;
 		Point previousRootRootLocation; //the point from previousRoot's parent, used for drawing purposes.
 		float dY;
 		float totalDY;
 		double deltaY;
 		double angleToRotate;
 		private static final int SPEED = 20;
-		private float branchLength = 30;
+		private float branchLength;
 		private float dYSinceReadjust = 0;
 
 		private boolean dRight;
@@ -77,17 +78,23 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		public void doStart() {
 			synchronized (mSurfaceHolder) {
 				// Initialize game here!
-				root = new TreeNode(null,new Point ((mCanvasWidth/2) ,mCanvasHeight*3/4));
+				root = new TreeNode(null,new Point ((mCanvasWidth/2 + 15) ,mCanvasHeight*3/4));
+				//root = new TreeNode(null,new Point ((mCanvasWidth/2) ,mCanvasHeight*3/4));
 				previousRoot = new TreeNode(new TreeNode[]{root},new Point(mCanvasWidth/2 ,mCanvasHeight));
-				previousRootRootLocation =previousRoot.getLocation();
-				branchLength = mCanvasHeight /4;
+				previousRootRootLocation = previousRoot.getLocation();
+				previousRootRoot = previousRoot;
+				branchLength = mCanvasHeight /3;
 				root.branch(3, branchLength, previousRoot.getLocation());
 				for(TreeNode tn : root.getChildren())
 				{
 					tn.branch(3, branchLength, root.getLocation());
-				/*	for(TreeNode tnc :tn.getChildren() )
+					for(TreeNode tnc :tn.getChildren())
+					{
 						tnc.branch(3, branchLength, tn.getLocation());
-				 */
+						for(TreeNode tncc:tnc.getChildren())
+							tncc.branch(3, branchLength, tnc.getLocation());
+					}
+				
 				}
 				mLastTime = System.currentTimeMillis() + 100;
 				setState(GameState.RUNNING);
@@ -253,7 +260,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				canvas.drawARGB(255, 0, 0, 0); //draw black background
 				Paint pm = new Paint();
 				pm.setColor(Color.WHITE);
-				drawTree(canvas,previousRoot,new Point(mCanvasWidth/2,mCanvasHeight),pm); //first draw the tree, from the previous root
+				//drawTree(canvas,previousRoot,new Point(mCanvasWidth/2,mCanvasHeight),pm); //first draw the tree, from the previous root
+				drawTree(canvas,previousRootRoot,new Point(mCanvasWidth/2,mCanvasHeight),pm);
 				/***
 				 * draw root and previous root
 				 */
@@ -329,11 +337,14 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					
 					child.branch(3, branchLength, root.getLocation()); //NEW, JULIAN
 					//child.branch(3, branchLength, Point.translate(root.getLocation(),0, dYSinceReadjust)); //OLD, CORY
-				/*	for(TreeNode baby: child.getChildren())
+					for(TreeNode baby: child.getChildren())
 					{
 						baby.branch(3, branchLength, child.getLocation());
+						for(TreeNode zygote: baby.getChildren())
+						{
+							zygote.branch(3, branchLength, child.getLocation());
+						}
 					}
-					*/
 				}
 				//reset our accumulators
 
