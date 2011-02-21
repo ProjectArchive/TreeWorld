@@ -41,8 +41,8 @@ public class TreeNode {
 		//Configure properties of each child (currently fixed to specific angles)
 		for( int i =0; i < numChildren; i ++)
 		{
-			//double angleToTurn = thetaNought + ((1-i)*(Math.PI/6));
-			double angleToTurn = thetaNought + ((1-i)*(Math.PI));
+			double angleToTurn = thetaNought + ((1-i)*(Math.PI/6));
+			//double angleToTurn = thetaNought + ((1-i)*(Math.PI/2));
 			
 			float xDisp =(float)(lengthOfBranch*(Math.sin(angleToTurn)));
 			float yDisp =(float)(lengthOfBranch*(Math.cos(angleToTurn)));

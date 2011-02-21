@@ -317,7 +317,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			
 			dYSinceReadjust += thisdY;
 			//we are near the end node
-			//TODO: THIS NEEDS TO BE FIXED. THIS SHOULD TAKE INTO ACCOUNT THAT DX = ZEDRO
+			//TODO: THIS NEEDS TO BE FIXED.
 			if(dYSinceReadjust >= previousRoot.getLocation().getY() -root.getLocation().getY())
 			{
 				previousRootRootLocation = previousRoot.getLocation(); // we need the previous root's location for drawing the whole tree
@@ -326,7 +326,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 				for(TreeNode child : root.getChildren())
 				{
-					child.branch(3, branchLength, Point.translate(root.getLocation(),0, dYSinceReadjust));
+					
+					child.branch(3, branchLength, root.getLocation()); //NEW, JULIAN
+					//child.branch(3, branchLength, Point.translate(root.getLocation(),0, dYSinceReadjust)); //OLD, CORY
 				/*	for(TreeNode baby: child.getChildren())
 					{
 						baby.branch(3, branchLength, child.getLocation());
