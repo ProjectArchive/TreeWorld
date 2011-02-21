@@ -41,13 +41,13 @@ public class TreeNode {
 		//Configure properties of each child (currently fixed to specific angles)
 		for( int i =0; i < numChildren; i ++)
 		{
-			double angleToTurn = thetaNought + ((1-i)*(Math.PI/6));
+			//double angleToTurn = thetaNought + ((1-i)*(Math.PI/6));
+			double angleToTurn = thetaNought + ((1-i)*(Math.PI));
 			
 			float xDisp =(float)(lengthOfBranch*(Math.sin(angleToTurn)));
 			float yDisp =(float)(lengthOfBranch*(Math.cos(angleToTurn)));
 			
-			//float xDisp =(float)(lengthOfBranch*(Math.cos(angleToTurn)));
-			//float yDisp =(float)(lengthOfBranch*(Math.sin(angleToTurn)));
+
 			
 			//translate from this location by xDisp and yDisp to generate next node's locations
 			//Point childLoc = new Point(xDisp + this.getLocation().getX(),yDisp + this.getLocation().getY()); // decsribe childoc
