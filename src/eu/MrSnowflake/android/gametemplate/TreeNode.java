@@ -68,6 +68,19 @@ public class TreeNode {
 				base += tn.toString();
 		return base;
 	}
+	public int getTreeLevel()
+	{
+		if(children == null)
+			return 0;
+		int myChildDeepest = 0;
+		for(TreeNode child : children)
+		{
+			int currentChildDepth =child.getTreeLevel();
+			if(currentChildDepth >= myChildDeepest)
+				myChildDeepest = currentChildDepth;
+		}
+		return 1+myChildDeepest;
+	}
 	
 
 }

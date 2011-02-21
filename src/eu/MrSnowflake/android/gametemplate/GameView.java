@@ -119,7 +119,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				root.branch(3, branchLength, previousRoot.getDisplacement());
 				for(TreeNode tn : root.getChildren())
 				{
-					tn.branch(3, branchLength, root.getDisplacement());
+				//	tn.branch(3, branchLength, root.getDisplacement());
 					/*//MORE RECURSION
 					
 					for(TreeNode tnc :tn.getChildren())
@@ -130,6 +130,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					}*/
 				
 				}
+				Log.i(previousRoot.getTreeLevel() + "", "debugtree");
 				mLastTime = System.currentTimeMillis() + 100;
 				setState(GameState.RUNNING);
 				thread.setRunning(true);
