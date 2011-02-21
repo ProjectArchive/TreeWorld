@@ -9,9 +9,15 @@ import android.graphics.Paint;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.ViewConfiguration;
+import android.widget.Toast;
 import eu.MrSnowflake.android.gametemplate.GameTemplate.GameState;
 
 /**
@@ -24,6 +30,18 @@ import eu.MrSnowflake.android.gametemplate.GameTemplate.GameState;
  * by the system.
  */
 class GameView extends SurfaceView implements SurfaceHolder.Callback {
+
+	private static final float DISTANCE_DIP = 16.0f;
+	private static final float PATH_DIP = 40.0f;
+	private int minScaledVelocity = ViewConfiguration.get(this.getContext()).getScaledMinimumFlingVelocity();
+	private GestureDetector detector = new GestureDetector( new SwipeDetector() );
+	
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+	detector.onTouchEvent(event);
+	return true;
+	}
+	
 	class GameThread extends Thread {
 		/*
 		 * State-tracking constants
@@ -467,5 +485,43 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			} catch (InterruptedException e) {
 			}
 		}
+	}
+	
+	class SwipeDetector extends SimpleOnGestureListener {
+        
+	    // returns true if we use the event
+	    // otherwise returns false
+	           
+	   public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {              
+	        int scaledDistance;
+	        int scaledPath;
+	                
+	        // get distance between points of the fling
+	        double vertical = Math.abs( e1.getY() - e2.getY() );
+	        double horizontal = Math.abs( e1.getX() - e2.getX() );
+	                
+	        // convert dip measurements to pixels
+	        final float scale = getResources().getDisplayMetrics().density;
+	        scaledDistance = (int) ( DISTANCE_DIP * scale + 0.5f );
+	        scaledPath = (int) ( PATH_DIP * scale + 0.5f );         
+	                
+	        // test vertical distance, make sure it's a swipe
+	        if ( vertical > PATH_DIP ) {
+	                return false;
+	        }
+	        // test horizontal distance and velocity
+	        else if ( horizontal > DISTANCE_DIP && Math.abs(velocityX) > minScaledVelocity ) {
+	        // right to left swipe
+	        if (velocityX < 0 ) {
+	        	Log.i("SWIPE", "SWIPE");
+	        }
+	        // left to right swipe
+	        else {
+	        }
+	            return true;
+	        }
+	            return false;
+
+	   }
 	}
 }
