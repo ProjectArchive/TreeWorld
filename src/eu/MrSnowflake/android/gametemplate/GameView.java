@@ -48,17 +48,21 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		 */
 		TreeNode root; //the current root, the first node seen on screen
 		TreeNode previousRoot; // the previous root, kept track of for drawing purposes.
+		Point previousRootRootLocation; //the point from previousRoot's parent, used for drawing purposes.
 		//TreeNode previousRootRoot;
 		float originY; //the point from which the tree originates
 		float originX; //the point from which the tree originates
-		Point previousRootRootLocation; //the point from previousRoot's parent, used for drawing purposes.
+
 		float dY;
-		float totalDY;
-		double deltaY;
-		double angleToRotate;
-		private static final int SPEED = 10;
-		private float branchLength;
+		float dX;
 		private float dYSinceReadjust = 0;
+		private float dXSinceReadjust = 0;
+		private double coefficientDX = 0.0;
+		private double coefficientDY = 1.0;
+		double angleToRotate;
+		private static final int SPEED = 7;
+		private float branchLength;
+		
 
 		private boolean dRight;
 		private boolean dLeft;
@@ -280,7 +284,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			if (root != null) //only draw tree if not null
 			{
 				canvas.save(); //save the current canvas location, so we can draw on the device's absolute pixels
-				canvas.translate(0, dY); //translate to simulate motion
+				canvas.translate(dX, dY); //translate to simulate motion
 				//canvas.rotate((float)angleToRotate, previousRoot.getLocation().getX(), previousRoot.getLocation().getY());
 				canvas.drawARGB(255, 0, 0, 0); //draw black background
 				Paint pm = new Paint();
@@ -298,10 +302,13 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				/**
 				 * Debug text printing, state information
 				 */
+				pm.setColor(Color.WHITE);
 				canvas.drawText("Screen =" + "(" + canvas.getWidth() + " x " + canvas.getHeight() + ")" + " lastPoint =" + previousRoot.getLocation(), 10, 10, pm);
 				Point absoluteRootLoc = Point.translate(root.getLocation(),0,dY);
 				canvas.drawText("RootLocation =" + absoluteRootLoc, 10, 20, pm);
 				canvas.drawText("root->last mag=" + previousRoot.getLocation().distanceTo(root.getLocation()), 10, 30, pm);
+				canvas.drawText("CoefficientX:" + this.coefficientDX, 10, 40, pm);
+				canvas.drawText( "CoefficientY:" + this.coefficientDY,10,50,pm);
 			}
 		}
 		public void drawTree(Canvas canvas,TreeNode current, Paint pm)
@@ -353,13 +360,15 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			 * your character will only walk half as fast as at the 25fps frame rate. Elapsed lets you manage the slowdowns
 			 * and speedups!
 			 */
-			float thisdY = (float)(elapsed*SPEED); //the total change in dy this timestep
+			float thisdY = (float)(elapsed*SPEED*coefficientDY); //the total change in dy this timestep
+			float thisdX = (float)(elapsed*SPEED*coefficientDX);
 			dY +=thisdY; //dY is the total dY, over time (since the begining of the applicaiton's lifecycle
-			
+			dX +=thisdX;
 			dYSinceReadjust += thisdY;
+			dXSinceReadjust += thisdX;
 			//we are near the end node
 			//TODO: THIS NEEDS TO BE FIXED.
-			if(dYSinceReadjust >= previousRoot.getLocation().getY() -root.getLocation().getY())
+			if(Math.sqrt(Math.pow(dXSinceReadjust,2) +Math.pow(dYSinceReadjust,2)) >= branchLength)
 			{
 				
 				previousRootRootLocation = previousRoot.getLocation(); // we need the previous root's location for drawing the whole tree
@@ -384,8 +393,13 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				
 				angleToRotate -= 30; //right turn, debug only
 				//reset our accumulators
-				
+				float nextDispX = previousRoot.getLocation().getX()-root.getLocation().getX(); 
+				float nextDispY = previousRoot.getLocation().getY()-root.getLocation().getY();
+				float magnitude = previousRoot.getLocation().distanceTo(root.getLocation());
+				coefficientDX=nextDispX/magnitude;
+				coefficientDY= nextDispY/magnitude;
 				dYSinceReadjust = 0;
+				dXSinceReadjust = 0;
 			}
 
 		}
