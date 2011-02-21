@@ -25,12 +25,12 @@ import eu.MrSnowflake.android.gametemplate.GameTemplate.GameState;
  */
 class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	class GameThread extends Thread {
-		private Point lastPoint;
-		private Point origin;
-		TreeNode root;
 		/*
 		 * State-tracking constants
 		 */
+		TreeNode root; //the current root, the first node seen on screen
+		TreeNode previousRoot; // the previous root, kept track of for drawing purposes.
+		Point previousRootRootLocation; //the point from previousRoot's parent, used for drawing purposes.
 		float dX;
 		float dY;
 		float totalDX;
@@ -81,12 +81,14 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		public void doStart() {
 			synchronized (mSurfaceHolder) {
 				// Initialize game here!
-
-				lastPoint = new Point(mCanvasWidth/2 +15,mCanvasHeight);
-				origin = new Point(mCanvasWidth/2,mCanvasHeight);
-				branchLength = mCanvasHeight /4;
 				root = new TreeNode(null,new Point ((mCanvasWidth/2),mCanvasHeight*3/4));
-				root.branch(3, branchLength, lastPoint);
+				previousRoot = new TreeNode(new TreeNode[]{root},new Point(mCanvasWidth/2,mCanvasHeight));
+				previousRootRootLocation =previousRoot.getLocation();
+				
+				
+				
+				branchLength = mCanvasHeight /4;
+				root.branch(3, branchLength, previousRoot.getLocation());
 				for(TreeNode tn : root.getChildren())
 				{
 					tn.branch(3, branchLength, root.getLocation());
@@ -250,24 +252,27 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 
 		private void doDraw(Canvas canvas) {
-			if (root != null)
+			if (root != null) //only draw tree if not null
 			{
-				canvas.save();
-				canvas.translate(dX, dY);
-				canvas.drawARGB(255, 0, 0, 0);
+				canvas.save(); //save the current canvas location, so we can draw on the device's absolute pixels
+				canvas.translate(dX, dY); //translate to simulate motion
+				canvas.drawARGB(255, 0, 0, 0); //draw black background
 				Paint pm = new Paint();
 				pm.setColor(Color.WHITE);
-				//canvas.drawLine(canvas.getWidth()/2, canvas.getHeight() -2, 0, 0, pm);
-				drawTree(canvas,root,lastPoint,pm);
-				//canvas.drawLine(lastPoint.getX(),lastPoint.getY(), root.getLocation().getX(), root.getLocation().getY(),pm);
+				drawTree(canvas,previousRoot,new Point(mCanvasWidth/2,mCanvasHeight),pm); //first draw the tree, from the previous root
+				/***
+				 * draw root and previous root
+				 */
 				
 				canvas.restore(); // back to relative to (0,0)
-				canvas.drawText("Screen =" + "(" + canvas.getWidth() + " x " + canvas.getHeight() + ")" + " lastPoint =" + lastPoint, 10, 10, pm);
+				
+				/**
+				 * Debug text printing, state information
+				 */
+				canvas.drawText("Screen =" + "(" + canvas.getWidth() + " x " + canvas.getHeight() + ")" + " lastPoint =" + previousRoot.getLocation(), 10, 10, pm);
 				Point absoluteRootLoc = Point.translate(root.getLocation(),dX,dY);
 				canvas.drawText("RootLocation =" + absoluteRootLoc, 10, 20, pm);
-				canvas.drawText("Origin Location =" + origin, 10, 30, pm);
-				//canvas.drawLine(lastPoint.getX(),lastPoint.getY(), absoluteRootLoc.getX(), absoluteRootLoc.getY(),pm);
-				canvas.drawText("root->last mag=" + lastPoint.distanceTo(root.getLocation()), 10, 50, pm);
+				canvas.drawText("root->last mag=" + previousRoot.getLocation().distanceTo(root.getLocation()), 10, 30, pm);
 			}
 		}
 		public void drawTree(Canvas canvas,TreeNode current,Point lastStart, Paint pm)
@@ -322,20 +327,21 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			//we are near the end node
 			if(Math.sqrt((Math.pow(dXSinceReadjust,2) + Math.pow(dYSinceReadjust,2))) >= branchLength)
 			{
-				lastPoint = root.getLocation()	; // keep track of our last point for drawing
+				previousRootRootLocation = previousRoot.getLocation(); // we need the previous root's location for drawing the whole tree
+				previousRoot = root;	; // keep track of our last point for drawing
 				root = root.getChildren()[1]; // branch on the tree, This is hacked, just choosing the central node
 
 				for(TreeNode child : root.getChildren())
 				{
-					child.branch(3, branchLength, Point.translate(lastPoint, dXSinceReadjust, -dYSinceReadjust));
+					child.branch(3, branchLength, Point.translate(previousRoot.getLocation(), dXSinceReadjust, -dYSinceReadjust));
 					for(TreeNode baby: child.getChildren())
 					{
 						baby.branch(3, branchLength, child.getLocation());
 					}
 				}
 				//reset our accumulators
-				deltaX = (lastPoint.getX()-root.getLocation().getX());
-				deltaY =(lastPoint.getY()-root.getLocation().getX());
+				deltaX = (previousRoot.getLocation().getX()-root.getLocation().getX());
+				deltaY =(previousRoot.getLocation().getY()-root.getLocation().getY());
 				angleToRotate += Math.atan(deltaX/deltaY);
 				dXSinceReadjust =0;
 				dYSinceReadjust = 0;
