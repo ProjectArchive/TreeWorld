@@ -54,12 +54,12 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 		float dY;
 		float dX;
-		private float dYSinceReadjust = 0;
-		private float dXSinceReadjust = 0;
-		private double coefficientDX = 0.0;
-		private double coefficientDY = 1.0;
+		private float dYSinceReadjust = 0; //the amount we have scrolled in the DY since the last exchange of root and previousroot
+		private float dXSinceReadjust = 0; //the amount we have scrolled in the DX since the last exchange of root and previousroot
+		private double coefficientDX = 0.0;//coefficient of canvas movement
+		private double coefficientDY = 1.0; //coefficient of canvas movement 1.0 to start in order to translate vertically
 		double angleToRotate;
-		private static final int SPEED = 5;
+		private static final int SPEED = 5; //canvas scroll speed in pixels per second
 		private float branchLength;
 		
 
@@ -360,7 +360,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			 * and speedups!
 			 */
 			float thisdY = (float)(elapsed*SPEED*coefficientDY); //the total change in dy this timestep
-			float thisdX = (float)(elapsed*SPEED*coefficientDX);
+			float thisdX = (float)(elapsed*SPEED*coefficientDX); //the total change in dX this timestep
 			dY +=thisdY; //dY is the total dY, over time (since the begining of the applicaiton's lifecycle
 			dX +=thisdX;
 			dYSinceReadjust += thisdY;
@@ -392,11 +392,12 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				
 				angleToRotate -= 30; //right turn, debug only
 				//reset our accumulators
-				float nextDispX = previousRoot.getLocation().getX()-root.getLocation().getX(); 
+				float nextDispX = previousRoot.getLocation().getX()-root.getLocation().getX();
 				float nextDispY = previousRoot.getLocation().getY()-root.getLocation().getY();
-				float magnitude = previousRoot.getLocation().distanceTo(root.getLocation());
-				coefficientDX=-(nextDispX/magnitude)*Math.cos(angleToRotate*Math.PI/180);
-				coefficientDY= (nextDispY/magnitude)*Math.sin(angleToRotate*Math.PI/180);
+				float magnitude = previousRoot.getLocation().distanceTo(root.getLocation()); 
+				
+				coefficientDX=Math.sin(angleToRotate*Math.PI/180); //coefficient of canvas velocity
+				coefficientDY= Math.cos(angleToRotate*Math.PI/180); //coefficient of canvas velocity
 				dYSinceReadjust = 0;
 				dXSinceReadjust = 0;
 			}
