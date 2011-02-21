@@ -11,13 +11,12 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewConfiguration;
-import android.widget.Toast;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import eu.MrSnowflake.android.gametemplate.GameTemplate.GameState;
 
 /**
@@ -285,7 +284,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			{
 				canvas.save(); //save the current canvas location, so we can draw on the device's absolute pixels
 				canvas.translate(dX, dY); //translate to simulate motion
-				//canvas.rotate((float)angleToRotate, previousRoot.getLocation().getX(), previousRoot.getLocation().getY());
+				canvas.rotate((float)angleToRotate, previousRoot.getLocation().getX(), previousRoot.getLocation().getY());
 				canvas.drawARGB(255, 0, 0, 0); //draw black background
 				Paint pm = new Paint();
 				pm.setColor(Color.WHITE);
@@ -396,8 +395,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				float nextDispX = previousRoot.getLocation().getX()-root.getLocation().getX(); 
 				float nextDispY = previousRoot.getLocation().getY()-root.getLocation().getY();
 				float magnitude = previousRoot.getLocation().distanceTo(root.getLocation());
-				coefficientDX=nextDispX/magnitude;
-				coefficientDY= nextDispY/magnitude;
+				coefficientDX=-(nextDispX/magnitude)*Math.cos(angleToRotate*Math.PI/180);
+				coefficientDY= (nextDispY/magnitude)*Math.sin(angleToRotate*Math.PI/180);
 				dYSinceReadjust = 0;
 				dXSinceReadjust = 0;
 			}
