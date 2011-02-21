@@ -48,4 +48,10 @@ public class Point {
 		float dY = p.y -y;
 		return (float)Math.sqrt(((dX*dX)+ (dY*dY)));
 	}
+	
+	public Point displacementTo(Point p)
+	{
+		return new Point(this.x - p.getX(), this.y -p.getY());
+	}
 }
+
