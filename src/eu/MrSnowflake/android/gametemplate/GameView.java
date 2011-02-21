@@ -64,14 +64,15 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		
 		
 		boolean shouldSave = false;
-		float dY;
-		float dX;
-		private float dYSinceReadjust = 0; //the amount we have scrolled in the DY since the last exchange of root and previousroot
-		private float dXSinceReadjust = 0; //the amount we have scrolled in the DX since the last exchange of root and previousroot
+		float dYSinceReadjust;
+		float dXSinceReadjust;
+		private float dY = 0; //the amount we have scrolled in the DY since the last exchange of root and previousroot
+		private float dX = 0; //the amount we have scrolled in the DX since the last exchange of root and previousroot
+		private double lastReadjustTime = 0;
 		private double coefficientDX = 0.0;//coefficient of canvas movement
 		private double coefficientDY = 1.0; //coefficient of canvas movement 1.0 to start in order to translate vertically
 		double angleToRotate;
-		private static final int SPEED = 0; //canvas scroll speed in pixels per second
+		private static final int SPEED = 10; //canvas scroll speed in pixels per second
 		private float branchLength;
 		
 		Matrix stationaryMatrix = null;
@@ -120,13 +121,14 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				for(TreeNode tn : root.getChildren())
 				{
 					tn.branch(3, branchLength);
+					
 					/*//MORE RECURSION
 					
 					for(TreeNode tnc :tn.getChildren())
 					{
-						tnc.branch(3, branchLength, tn.getLocation());
+						tnc.branch(3, branchLength);
 						for(TreeNode tncc:tnc.getChildren())
-							tncc.branch(3, branchLength, tnc.getLocation());
+							tncc.branch(3, branchLength);
 					}*/
 				
 				}
@@ -326,7 +328,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				canvas.drawCircle(rootAbsolute.getX(), rootAbsolute.getY(), 5, pm);
 				pm.setColor(Color.GREEN);
 				canvas.drawCircle(origin.getX(), origin.getY(), 3, pm);				
-				canvas.translate(dX,dY);
+				canvas.translate(dXSinceReadjust,dYSinceReadjust);
 				canvas.save();
 			}
 		}
@@ -381,19 +383,17 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			 * your character will only walk half as fast as at the 25fps frame rate. Elapsed lets you manage the slowdowns
 			 * and speedups!
 			 */
-			float thisdX = (float)(elapsed*SPEED*0); //the total change in dX this timestep
-			float thisdY = (float)(elapsed*SPEED*1); //the total change in dy this timestep
-			dX =thisdX;
-			dY =thisdY; //dY is the total dY, over time (since the begining of the applicaiton's lifecycle
-			dXSinceReadjust += thisdX;
-			dYSinceReadjust += thisdY;
+			dXSinceReadjust = (float)((elapsed-lastReadjustTime)*SPEED*0); //the total change in dX this timestep
+			dYSinceReadjust = (float)((elapsed-lastReadjustTime)*SPEED*1); //the total change in dy this timestep
+			dX += dXSinceReadjust;
+			dY += dYSinceReadjust;
 			//we are near the end node
 			//TODO: THIS NEEDS TO BE FIXED.
-			if(Math.sqrt(Math.pow(dXSinceReadjust,2) +Math.pow(dYSinceReadjust,2)) >= branchLength)
+			if(Math.sqrt(Math.pow(dX,2) +Math.pow(dY,2)) >= branchLength)
 			{
 				
 				previousRoot = root; // keep track of our last point for drawing
-				root = root.getChildren()[1]; // branch on the tree, This is hacked, just choosing the right node
+				root = root.getChildren()[1]; // branch on the tree, This is hacked, just choosing the center node
 				for(TreeNode child : root.getChildren())
 				{
 					child.branch(3, branchLength); //NEW, JULIAN
@@ -417,8 +417,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				float magnitude = previousRoot.getLocation().distanceTo(root.getLocation()); 
 				*/
 				angleToRotate += 30; //right turn, debug only
-				dYSinceReadjust = 0;
-				dXSinceReadjust = 0;
+				dY = 0;
+				dX = 0;
+				lastReadjustTime = elapsed;
 				shouldSave = true;
 			}
 
