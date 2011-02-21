@@ -30,8 +30,8 @@ import eu.MrSnowflake.android.gametemplate.GameTemplate.GameState;
  */
 class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
-	private static final float DISTANCE_DIP = 16.0f;
-	private static final float PATH_DIP = 40.0f;
+	private static final float DISTANCE_DIP = 10.0f;
+	private static final float PATH_DIP = 300.0f;
 	private int minScaledVelocity = ViewConfiguration.get(this.getContext()).getScaledMinimumFlingVelocity();
 	private GestureDetector detector = new GestureDetector( new SwipeDetector() );
 	
@@ -526,10 +526,11 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	        else if ( horizontal > DISTANCE_DIP && Math.abs(velocityX) > minScaledVelocity ) {
 	        // right to left swipe
 	        if (velocityX < 0 ) {
-	        	Log.i("SWIPE", "SWIPE");
+	        	Log.i("SWIPE", "LSWIPE");
 	        }
 	        // left to right swipe
 	        else {
+	        	Log.i("SWIPE", "RSWIPE");
 	        }
 	            return true;
 	        }
