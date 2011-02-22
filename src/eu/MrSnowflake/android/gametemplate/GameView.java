@@ -337,10 +337,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				canvas.setMatrix(movingMatrix);
 				
 				//draw the Cartesian axis
-				pm.setColor(Color.BLUE);
+				/*pm.setColor(Color.BLUE);
 				canvas.drawLine(0, origin.getY(), mCanvasWidth, origin.getY(), pm);
 				pm.setColor(Color.RED);
-				canvas.drawLine(origin.getX(), origin.getY(), origin.getX(),0, pm);
+				canvas.drawLine(origin.getX(), origin.getY(), origin.getX(),0, pm);*/
 			
 				drawTree(canvas, previousRoot,origin,pm);//draw the tree
 				
@@ -363,7 +363,11 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				if (shouldSave) {
 					//Revert the moving matrix to the static method
 					movingMatrix.set(stationaryMatrix);
-					//movingMatrix.preTranslate(0,branchLength );
+					
+					//********Correct Translation Properly
+					//movingMatrix.preTranslate(84.5f, 0);
+					//movingMatrix.preTranslate(root.getDisplacement().getX(),root.getTreeLevel().get);
+					//********
 					canvas.setMatrix(movingMatrix);
 					shouldSave = false;
 					
