@@ -334,11 +334,11 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				canvas.drawCircle(rootAbsolute.getX(), rootAbsolute.getY(), 5, pm);
 				pm.setColor(Color.GREEN);
 				canvas.drawCircle(origin.getX(), origin.getY(), 3, pm);		
-				canvas.translate((float)(SPEED*elapsed*0),(float)(SPEED*elapsed*1));
-				movingMatrix = canvas.getMatrix();
+				canvas.translate(dX,dY);
+				movingMatrix.set(canvas.getMatrix());
 
 				if (shouldSave) {
-					movingMatrix = stationaryMatrix;
+					movingMatrix.set(stationaryMatrix);
 					shouldSave = false;
 				}
 				
@@ -395,8 +395,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			 * your character will only walk half as fast as at the 25fps frame rate. Elapsed lets you manage the slowdowns
 			 * and speedups!
 			 */
-			//dX = (float)((now)*SPEED*0); //the total change in dX this timestep
-			//dY = (float)((now)*SPEED*1); //the total change in dY this timestep
+			dX = (float)((elapsed)*SPEED*0); //the total change in dX this timestep
+			dY = (float)((elapsed)*SPEED*1); //the total change in dY this timestep
 			dXSinceReadjust = (float)((now - lastReadjustTime)*SPEED*0);
 			dYSinceReadjust = (float)((now - lastReadjustTime)*SPEED*1);
 			//we are near the end node
