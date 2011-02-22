@@ -1,5 +1,7 @@
 package eu.MrSnowflake.android.gametemplate;
 
+import java.util.Random;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,12 +14,12 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewConfiguration;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import eu.MrSnowflake.android.gametemplate.GameTemplate.GameState;
 
 /**
@@ -31,6 +33,7 @@ import eu.MrSnowflake.android.gametemplate.GameTemplate.GameState;
  */
 class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
+	private int decision = 1;
 	private static final float DISTANCE_DIP = 10.0f;
 	private static final float PATH_DIP = 300.0f;
 	private int minScaledVelocity = ViewConfiguration.get(this.getContext()).getScaledMinimumFlingVelocity();
@@ -73,9 +76,11 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		private double coefficientDY = 1.0; //coefficient of canvas movement 1.0 to start in order to translate vertically
 		double angleToRotate;
 		boolean needsToRotate = false;
-		private static final double SPEED = .01; //canvas scroll speed in pixels per second
+		private static final double SPEED = .1; //canvas scroll speed in pixels per second
 		private double elapsed;
 		private float branchLength;
+		int stationaryMatrixNum = -1;
+		int movingMatrixNum;
 		
 		Matrix stationaryMatrix = null;
 		Matrix movingMatrix = null;
@@ -116,8 +121,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		public void doStart() {
 			synchronized (mSurfaceHolder) {
 				// Initialize game here!
-				origin = new Point(mCanvasWidth/2,mCanvasHeight -300);
-				branchLength = mCanvasHeight /20;
+				origin = new Point(mCanvasWidth/2,mCanvasHeight);
+				branchLength = mCanvasHeight /3;
 				root = new TreeNode(null,new Point (0,-branchLength)); // displacement from
 				previousRoot = new TreeNode(new TreeNode[]{root},new Point(0,branchLength));
 				root.branch(3, branchLength);
@@ -297,32 +302,41 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 
 		private void doDraw(Canvas canvas) {
+			//Initialize Matrices to Empty
 			if(stationaryMatrix == null) {
-				stationaryMatrix = canvas.getMatrix();
-				movingMatrix = canvas.getMatrix();
+				stationaryMatrix = new Matrix(null); //identity matrix
+				movingMatrix = new Matrix(null); //identity matrix
 			}
+			
 			if (root != null && canvas != null) //only draw tree if not null
 			{
+				//*****************STATIC STUFF**********************
+				//Reset To STATIC canvas
 				canvas.setMatrix(stationaryMatrix);
-				canvas.drawARGB(255, 0, 0, 0); //draw black background
-				Paint pm =new Paint();
-				pm.setColor(Color.WHITE);
+				
+				//Clear Background as black
+				canvas.drawARGB(255, 0, 0, 0);
+				Paint pm = new Paint();
+				
+				//Write info about ROOT
 				pm.setColor(Color.MAGENTA);
 				canvas.drawText("root: "+root.getDisplacement().toString(), 10, 10, pm);
+				
+				//Write info about PREVROOT
 				pm.setColor(Color.YELLOW);
 				canvas.drawText("prevroot: "+previousRoot.getDisplacement().toString(), 10, 20, pm);
+				
+				//Write info about ORIGIN
 				pm.setColor(Color.GREEN);
 				canvas.drawText("origin" +origin.toString(), 10, 30, pm);
+
+				//***************************************
+				
+				//*****************MOVING STUFF**********************
+				//Set canvas to moving matrix
 				canvas.setMatrix(movingMatrix);
 				
-//				canvas.drawText("Imove", 30, 10, pm);
-				if(needsToRotate)
-				{
-					Point about = Point.translate(origin, previousRoot.getDisplacement().getX(), previousRoot.getDisplacement().getY());
-					canvas.rotate(-30,about.getX(),about.getY());
-					needsToRotate = false;
-				}
-			//draw the cartesian axis
+				//draw the Cartesian axis
 				pm.setColor(Color.BLUE);
 				canvas.drawLine(0, origin.getY(), mCanvasWidth, origin.getY(), pm);
 				pm.setColor(Color.RED);
@@ -330,25 +344,44 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			
 				drawTree(canvas, previousRoot,origin,pm);//draw the tree
 				
-				//draw debug root,prevroot,origin locations
+				//DRAW PREVROOT LOC:
 				pm.setColor(Color.YELLOW);
 				Point prevRootAbsolute = Point.translate(origin, previousRoot.getDisplacement().getX(), previousRoot.getDisplacement().getY());
 				canvas.drawCircle(prevRootAbsolute.getX(), prevRootAbsolute.getY(), 7, pm);
+				
+				//DRAW ROOT LOC:
 				pm.setColor(Color.MAGENTA);
 				Point rootAbsolute = Point.translate(prevRootAbsolute, root.getDisplacement().getX(), root.getDisplacement().getY());
 				canvas.drawCircle(rootAbsolute.getX(), rootAbsolute.getY(), 5, pm);
+				
+				//DRAW ORIGIN LOC:
 				pm.setColor(Color.GREEN);
 				canvas.drawCircle(origin.getX(), origin.getY(), 3, pm);		
-				canvas.translate(dX,dY);
-				movingMatrix.set(canvas.getMatrix());
+
+				movingMatrix.preTranslate(dX, dY); //Does Translation
 
 				if (shouldSave) {
+					//Revert the moving matrix to the static method
 					movingMatrix.set(stationaryMatrix);
+					//movingMatrix.preTranslate(0,branchLength );
+					canvas.setMatrix(movingMatrix);
 					shouldSave = false;
+					
+					if(needsToRotate)
+					{
+						Point about = Point.translate(origin, previousRoot.getDisplacement().getX(), previousRoot.getDisplacement().getY());
+						//Point about = Point.translate(origin, root.getDisplacement().getX(), root.getDisplacement().getY());
+						//canvas.rotate(-30,about.getX(),about.getY());
+						movingMatrix.preRotate((float)(-angleToRotate),about.getX(),about.getY());
+						needsToRotate = false;
+					}
 				}
+				
+				//***************************************
 				
 			}
 		}
+		
 		public void drawTree(Canvas canvas,TreeNode current,Point absoluteOriginOfDrawing, Paint pm)
 		{
 			pm.setColor(Color.WHITE);
@@ -408,9 +441,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			//TODO: THIS NEEDS TO BE FIXED.
 			if(Math.sqrt(Math.pow(dXSinceReadjust,2) +Math.pow(dYSinceReadjust,2)) >= branchLength)
 			{
-				
 				previousRoot = root; // keep track of our last point for drawing
-				root = root.getChildren()[2]; // branch on the tree, This is hacked, just choosing the center node
+				root = root.getChildren()[decision]; // branch on the tree, This is hacked, just choosing the center node
 				for(TreeNode child : root.getChildren())
 				{
 					child.branch(3, branchLength); //NEW, JULIAN
@@ -433,12 +465,13 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				float nextDispY = previousRoot.getLocation().getY()-root.getLocation().getY();
 				float magnitude = previousRoot.getLocation().distanceTo(root.getLocation()); 
 				*/
-				angleToRotate += 30; //right turn, debug only
+				angleToRotate += (1-decision)*30;
 				dYSinceReadjust = 0;
 				dXSinceReadjust = 0;
 				lastReadjustTime = now;
 				shouldSave = true;
 				needsToRotate = true;
+				decision = 1;
 			}
 
 		}
@@ -605,11 +638,14 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	        // test horizontal distance and velocity
 	        else if ( horizontal > DISTANCE_DIP && Math.abs(velocityX) > minScaledVelocity ) {
 	        // right to left swipe
-	        if (velocityX < 0 ) {
+	        if (velocityX < 0 ) 
+	        {
+	        	decision = 0;
 	        	Log.i("SWIPE", "LSWIPE");
 	        }
 	        // left to right swipe
 	        else {
+	        	decision = 2;
 	        	Log.i("SWIPE", "RSWIPE");
 	        }
 	            return true;
