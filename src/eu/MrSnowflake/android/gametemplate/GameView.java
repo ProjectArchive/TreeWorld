@@ -72,10 +72,12 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		private double coefficientDX = 0.0;//coefficient of canvas movement
 		private double coefficientDY = 1.0; //coefficient of canvas movement 1.0 to start in order to translate vertically
 		double angleToRotate;
-		private static final int SPEED = 10; //canvas scroll speed in pixels per second
+		private static final double SPEED = .01; //canvas scroll speed in pixels per second
+		private double elapsed;
 		private float branchLength;
 		
 		Matrix stationaryMatrix = null;
+		Matrix movingMatrix = null;
 		
 		private boolean dRight;
 		private boolean dLeft;
@@ -294,8 +296,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 
 		private void doDraw(Canvas canvas) {
-			if(stationaryMatrix == null)
+			if(stationaryMatrix == null) {
 				stationaryMatrix = canvas.getMatrix();
+				movingMatrix = canvas.getMatrix();
+			}
 			if (root != null && canvas != null) //only draw tree if not null
 			{
 				canvas.setMatrix(stationaryMatrix);
@@ -308,7 +312,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				canvas.drawText("prevroot: "+previousRoot.getDisplacement().toString(), 10, 20, pm);
 				pm.setColor(Color.GREEN);
 				canvas.drawText("origin" +origin.toString(), 10, 30, pm);
-				canvas.restore();
+				
+				canvas.setMatrix(movingMatrix);
+				
 //				canvas.drawText("Imove", 30, 10, pm);
 				
 			//draw the cartesian axis
@@ -327,9 +333,15 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				Point rootAbsolute = Point.translate(prevRootAbsolute, root.getDisplacement().getX(), root.getDisplacement().getY());
 				canvas.drawCircle(rootAbsolute.getX(), rootAbsolute.getY(), 5, pm);
 				pm.setColor(Color.GREEN);
-				canvas.drawCircle(origin.getX(), origin.getY(), 3, pm);				
-				canvas.translate(dXSinceReadjust,dYSinceReadjust);
-				canvas.save();
+				canvas.drawCircle(origin.getX(), origin.getY(), 3, pm);		
+				canvas.translate((float)(SPEED*elapsed*0),(float)(SPEED*elapsed*1));
+				movingMatrix = canvas.getMatrix();
+
+				if (shouldSave) {
+					movingMatrix = stationaryMatrix;
+					shouldSave = false;
+				}
+				
 			}
 		}
 		public void drawTree(Canvas canvas,TreeNode current,Point absoluteOriginOfDrawing, Paint pm)
@@ -372,7 +384,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			// by 100ms or whatever.
 			if (mLastTime > now) 
 				return;
-			double elapsed = (now - mLastTime) / 1000.0;
+			elapsed = (now - mLastTime);
 			mLastTime = now;
 			//// </DoNotRemove>
 
@@ -383,13 +395,13 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			 * your character will only walk half as fast as at the 25fps frame rate. Elapsed lets you manage the slowdowns
 			 * and speedups!
 			 */
-			dXSinceReadjust = (float)((elapsed-lastReadjustTime)*SPEED*0); //the total change in dX this timestep
-			dYSinceReadjust = (float)((elapsed-lastReadjustTime)*SPEED*1); //the total change in dy this timestep
-			dX += dXSinceReadjust;
-			dY += dYSinceReadjust;
+			//dX = (float)((now)*SPEED*0); //the total change in dX this timestep
+			//dY = (float)((now)*SPEED*1); //the total change in dY this timestep
+			dXSinceReadjust = (float)((now - lastReadjustTime)*SPEED*0);
+			dYSinceReadjust = (float)((now - lastReadjustTime)*SPEED*1);
 			//we are near the end node
 			//TODO: THIS NEEDS TO BE FIXED.
-			if(Math.sqrt(Math.pow(dX,2) +Math.pow(dY,2)) >= branchLength)
+			if(Math.sqrt(Math.pow(dXSinceReadjust,2) +Math.pow(dYSinceReadjust,2)) >= branchLength)
 			{
 				
 				previousRoot = root; // keep track of our last point for drawing
@@ -417,9 +429,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				float magnitude = previousRoot.getLocation().distanceTo(root.getLocation()); 
 				*/
 				angleToRotate += 30; //right turn, debug only
-				dY = 0;
-				dX = 0;
-				lastReadjustTime = elapsed;
+				dYSinceReadjust = 0;
+				dXSinceReadjust = 0;
+				lastReadjustTime = now;
 				shouldSave = true;
 			}
 
@@ -574,18 +586,12 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	    // otherwise returns false
 	           
 	   public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {              
-	        int scaledDistance;
-	        int scaledPath;
-	                
 	        // get distance between points of the fling
 	        double vertical = Math.abs( e1.getY() - e2.getY() );
 	        double horizontal = Math.abs( e1.getX() - e2.getX() );
 	                
 	        // convert dip measurements to pixels
 	        final float scale = getResources().getDisplayMetrics().density;
-	        scaledDistance = (int) ( DISTANCE_DIP * scale + 0.5f );
-	        scaledPath = (int) ( PATH_DIP * scale + 0.5f );         
-	                
 	        // test vertical distance, make sure it's a swipe
 	        if ( vertical > PATH_DIP ) {
 	                return false;
