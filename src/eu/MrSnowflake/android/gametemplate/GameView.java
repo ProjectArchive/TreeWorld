@@ -72,6 +72,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		private double coefficientDX = 0.0;//coefficient of canvas movement
 		private double coefficientDY = 1.0; //coefficient of canvas movement 1.0 to start in order to translate vertically
 		double angleToRotate;
+		boolean needsToRotate = false;
 		private static final double SPEED = .01; //canvas scroll speed in pixels per second
 		private double elapsed;
 		private float branchLength;
@@ -312,11 +313,15 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				canvas.drawText("prevroot: "+previousRoot.getDisplacement().toString(), 10, 20, pm);
 				pm.setColor(Color.GREEN);
 				canvas.drawText("origin" +origin.toString(), 10, 30, pm);
-				
 				canvas.setMatrix(movingMatrix);
 				
 //				canvas.drawText("Imove", 30, 10, pm);
-				
+				if(needsToRotate)
+				{
+					Point about = Point.translate(origin, previousRoot.getDisplacement().getX(), previousRoot.getDisplacement().getY());
+					canvas.rotate(-30,about.getX(),about.getY());
+					needsToRotate = false;
+				}
 			//draw the cartesian axis
 				pm.setColor(Color.BLUE);
 				canvas.drawLine(0, origin.getY(), mCanvasWidth, origin.getY(), pm);
@@ -405,7 +410,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			{
 				
 				previousRoot = root; // keep track of our last point for drawing
-				root = root.getChildren()[1]; // branch on the tree, This is hacked, just choosing the center node
+				root = root.getChildren()[2]; // branch on the tree, This is hacked, just choosing the center node
 				for(TreeNode child : root.getChildren())
 				{
 					child.branch(3, branchLength); //NEW, JULIAN
@@ -433,6 +438,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				dXSinceReadjust = 0;
 				lastReadjustTime = now;
 				shouldSave = true;
+				needsToRotate = true;
 			}
 
 		}

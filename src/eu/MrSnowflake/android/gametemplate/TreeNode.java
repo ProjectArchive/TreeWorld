@@ -45,12 +45,12 @@ public class TreeNode {
 				//thetaNought += Math.PI;
 			double angleToTurn = thetaNought + ((1-i)*(Math.PI/6));
 			//double angleToTurn = thetaNought + ((1-i)*(Math.PI/2));
-			/*if(yDif<0)
+			if(yDif<0)
 			{
 			Log.i("Theta0=" + thetaNought + " angleToTurn="+angleToTurn, "debugangles");
 			angleToTurn += Math.PI;
 			}
-			*/
+			
 			
 			float xDisp =(float)(lengthOfBranch*(Math.sin(angleToTurn)));
 			float yDisp =(float)(lengthOfBranch*(Math.cos(angleToTurn)));			
