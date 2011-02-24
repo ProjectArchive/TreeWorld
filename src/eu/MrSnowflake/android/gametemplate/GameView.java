@@ -369,7 +369,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					//movingMatrix.preTranslate(root.getDisplacement().getX(),root.getTreeLevel().get);
 					//********
 					canvas.setMatrix(movingMatrix);
-					shouldSave = false;
+					shouldSave = false;//reset it
 					
 					if(needsToRotate)
 					{
